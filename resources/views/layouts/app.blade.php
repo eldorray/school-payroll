@@ -103,6 +103,7 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
+            text-decoration: none;
         }
         
         .btn-primary:hover {
@@ -120,6 +121,10 @@
             border: 1px solid var(--border);
             cursor: pointer;
             transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
         
         .btn-secondary:hover {
@@ -247,6 +252,17 @@
                     Payroll & Reports
                 </a>
             </nav>
+            
+            <!-- User Menu at Bottom -->
+            <div style="position: absolute; bottom: 20px; left: 0; right: 0; padding: 0 12px;">
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="sidebar-nav" style="width: 100%; background: rgba(255,255,255,0.05); border-radius: 8px; padding: 12px 20px; color: rgba(255,255,255,0.7); font-size: 13px; border: none; cursor: pointer; display: flex; align-items: center; gap: 12px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                        Logout
+                    </button>
+                </form>
+            </div>
         </aside>
 
         <!-- Main Content -->

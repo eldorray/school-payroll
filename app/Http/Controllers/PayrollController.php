@@ -194,4 +194,29 @@ class PayrollController extends Controller
             
         return view('payrolls.print_all', compact('payrolls', 'month', 'year', 'activeYear'));
     }
+
+    public function deleteMonth(Request $request)
+    {
+        $validated = $request->validate([
+            'month' => 'required|integer|min:1|max:12',
+            'year' => 'required|integer|min:2000',
+        ]);
+
+        $activeYear = AcademicYear::where('is_active', true)->first();
+        if (!$activeYear) {
+            return back()->with('error', 'No active academic year.');
+        }
+
+        $deleted = Payroll::where('academic_year_id', $activeYear->id)
+            ->where('month', $validated['month'])
+            ->where('year', $validated['year'])
+            ->delete();
+
+        $monthName = date('F', mktime(0, 0, 0, $validated['month'], 10));
+        
+        return redirect()->route('payrolls.index', [
+            'month' => $validated['month'],
+            'year' => $validated['year']
+        ])->with('success', "Deleted {$deleted} payroll records for {$monthName} {$validated['year']}.");
+    }
 }

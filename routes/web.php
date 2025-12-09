@@ -1,21 +1,42 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AcademicYearController;
-use App\Http\Controllers\TeacherController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PayrollController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TeacherController;
+use Illuminate\Support\Facades\Route;
 
-Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+// Redirect root to login or dashboard
+Route::get('/', function () {
+    return redirect()->route('login');
+});
 
-Route::resource('academic-years', AcademicYearController::class);
-Route::post('academic-years/{academic_year}/activate', [AcademicYearController::class, 'activate'])->name('academic-years.activate');
+// Protected routes (require authentication)
+Route::middleware(['auth', 'verified'])->group(function () {
+    // Dashboard
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-Route::resource('teachers', TeacherController::class);
+    // Academic Years
+    Route::resource('academic-years', AcademicYearController::class);
+    Route::post('academic-years/{academicYear}/activate', [AcademicYearController::class, 'activate'])->name('academic-years.activate');
 
-Route::get('payrolls', [PayrollController::class, 'index'])->name('payrolls.index');
-Route::get('payrolls/create', [PayrollController::class, 'create'])->name('payrolls.create');
-Route::post('payrolls', [PayrollController::class, 'store'])->name('payrolls.store');
-Route::get('payrolls/report', [PayrollController::class, 'report'])->name('payrolls.report');
-Route::get('payrolls/print-all', [PayrollController::class, 'printAll'])->name('payrolls.print_all');
-Route::get('payrolls/{payroll}', [PayrollController::class, 'show'])->name('payrolls.show');
+    // Teachers
+    Route::resource('teachers', TeacherController::class);
+
+    // Payrolls - Custom routes BEFORE resource to avoid conflicts
+    Route::get('payrolls/report', [PayrollController::class, 'report'])->name('payrolls.report');
+    Route::get('payrolls/print-all', [PayrollController::class, 'printAll'])->name('payrolls.print_all');
+    Route::get('payrolls', [PayrollController::class, 'index'])->name('payrolls.index');
+    Route::get('payrolls/create', [PayrollController::class, 'create'])->name('payrolls.create');
+    Route::post('payrolls', [PayrollController::class, 'store'])->name('payrolls.store');
+    Route::get('payrolls/{payroll}', [PayrollController::class, 'show'])->name('payrolls.show');
+    Route::delete('payrolls/delete-month', [PayrollController::class, 'deleteMonth'])->name('payrolls.delete_month');
+
+    // Profile (from Breeze)
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+require __DIR__.'/auth.php';
