@@ -17,10 +17,12 @@ class PayrollController extends Controller
         $payrolls = [];
         $selectedMonth = $request->get('month', date('n'));
         $selectedYear = $request->get('year', date('Y'));
+        $unitId = session('unit_id');
 
         if ($activeYear) {
             $payrolls = Payroll::with('teacher')
                 ->where('academic_year_id', $activeYear->id)
+                ->where('unit_id', $unitId)
                 ->where('month', $selectedMonth)
                 ->where('year', $selectedYear)
                 ->get();
@@ -36,8 +38,9 @@ class PayrollController extends Controller
             return redirect()->route('academic-years.index')->with('error', 'Please activate an Academic Year first.');
         }
 
-        // Get all teachers
-        $teachers = Teacher::orderBy('name')->get();
+        $unitId = session('unit_id');
+        // Get teachers for selected unit only
+        $teachers = Teacher::where('unit_id', $unitId)->orderBy('name')->get();
         
         $currentMonth = date('n');
         $currentYear = date('Y');
@@ -133,6 +136,7 @@ class PayrollController extends Controller
                 Payroll::updateOrCreate(
                     [
                         'academic_year_id' => $activeYear->id,
+                        'unit_id' => session('unit_id'),
                         'teacher_id' => $teacherId,
                         'month' => $validated['month'],
                         'year' => $validated['year'],
@@ -166,10 +170,12 @@ class PayrollController extends Controller
         $month = $request->get('month', date('n'));
         $year = $request->get('year', date('Y'));
         $activeYear = AcademicYear::where('is_active', true)->first();
+        $unitId = session('unit_id');
         
         $payrolls = Payroll::with('teacher')
             ->where('month', $month)
             ->where('year', $year)
+            ->where('unit_id', $unitId)
             ->when($activeYear, function($q) use ($activeYear) {
                  return $q->where('academic_year_id', $activeYear->id);
             })
@@ -184,9 +190,11 @@ class PayrollController extends Controller
         $year = $request->get('year', date('Y'));
         $activeYear = AcademicYear::where('is_active', true)->first();
         
+        $unitId = session('unit_id');
         $payrolls = Payroll::with('teacher', 'academicYear')
             ->where('month', $month)
             ->where('year', $year)
+            ->where('unit_id', $unitId)
             ->when($activeYear, function($q) use ($activeYear) {
                  return $q->where('academic_year_id', $activeYear->id);
             })
@@ -208,6 +216,7 @@ class PayrollController extends Controller
         }
 
         $deleted = Payroll::where('academic_year_id', $activeYear->id)
+            ->where('unit_id', session('unit_id'))
             ->where('month', $validated['month'])
             ->where('year', $validated['year'])
             ->delete();

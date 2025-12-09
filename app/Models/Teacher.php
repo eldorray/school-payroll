@@ -29,4 +29,9 @@ class Teacher extends Model
     {
         return $this->hasMany(TeacherAnnualSetting::class);
     }
+
+    public function unit()
+    {
+        return $this->belongsTo(Unit::class);
+    }
 }

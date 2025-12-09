@@ -11,7 +11,8 @@ class TeacherController extends Controller
 {
     public function index()
     {
-        $teachers = Teacher::orderBy('name')->get();
+        $unitId = session('unit_id');
+        $teachers = Teacher::where('unit_id', $unitId)->orderBy('name')->get();
         return view('teachers.index', compact('teachers'));
     }
 
@@ -38,6 +39,7 @@ class TeacherController extends Controller
         ]);
 
         $teacher = Teacher::create([
+            'unit_id' => session('unit_id'),
             'name' => $validated['name'],
             'position' => $validated['position'] ?? null,
             'nip' => $validated['nip'],

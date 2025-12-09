@@ -37,6 +37,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Unit Settings
+    Route::get('/unit-settings', [\App\Http\Controllers\UnitController::class, 'edit'])->name('units.edit');
+    Route::patch('/unit-settings', [\App\Http\Controllers\UnitController::class, 'update'])->name('units.update');
 });
 
 require __DIR__.'/auth.php';

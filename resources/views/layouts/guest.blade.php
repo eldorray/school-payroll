@@ -21,7 +21,7 @@
             }
             
             body {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                background: linear-gradient(135deg, #ccd4fa 0%, #e1e7ff 100%);
                 background-attachment: fixed;
                 min-height: 100vh;
             }
@@ -135,8 +135,8 @@
             </div>
             
             <!-- Footer -->
-            <p style="font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 32px;">
-                &copy; {{ date('Y') }} School Payroll. All rights reserved.
+            <p style="font-size: 12px; color: rgba(0, 0, 0, 0.6); margin-top: 32px;">
+                &copy; {{ date('Y') }} School Payroll. Design by elfahmie.
             </p>
         </div>
     </body>

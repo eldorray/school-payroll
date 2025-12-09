@@ -22,9 +22,10 @@
         <button onclick="window.print()" style="padding: 5px 10px; cursor: pointer;">Print Report / Save as PDF</button>
     </div>
 
+    @php $currentUnit = \App\Models\Unit::find(session('unit_id')); @endphp
     <div class="header">
         <div>DAFTAR PENERIMA HONOR PENDIDIK DAN TENAGA KEPENDIDIKAN</div>
-        <div>SMP GARUDA</div>
+        <div>{{ $currentUnit ? strtoupper($currentUnit->name) : 'SEKOLAH' }}</div>
         <div>TAHUN PELAJARAN {{ $activeYear ? $activeYear->name : 'N/A' }}</div>
     </div>
 
@@ -245,5 +246,14 @@
             </tr>
         </tbody>
     </table>
+    
+    <!-- Signature Section -->
+    <div style="margin-top: 30px; display: flex; justify-content: flex-end;">
+        <div style="text-align: center; width: 250px;">
+            <p style="margin-bottom: 5px;">{{ $currentUnit ? $currentUnit->location : 'Cirebon' }}, {{ $currentUnit && $currentUnit->signature_date ? $currentUnit->signature_date->locale('id')->translatedFormat('d F Y') : now()->locale('id')->translatedFormat('d F Y') }}</p>
+            <p style="margin-bottom: 60px;">Kepala Sekolah</p>
+            <p style="text-decoration: underline; font-weight: bold;">{{ $currentUnit ? $currentUnit->principal_name : '________________________' }}</p>
+        </div>
+    </div>
 </body>
 </html>

@@ -1,7 +1,12 @@
 @extends('layouts.app')
 
 @section('content')
-    <h1 class="page-title">Dashboard</h1>
+    <div class="mb-6">
+        <h1 class="page-title" style="margin-bottom: 4px;">Dashboard</h1>
+        @if($unit)
+            <p style="font-size: 14px; color: var(--text-secondary);">{{ $unit->name }}</p>
+        @endif
+    </div>
     
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <!-- Stats Cards -->
@@ -9,7 +14,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="stat-label">Active Teachers</p>
-                    <p class="stat-value">{{ \App\Models\Teacher::count() }}</p>
+                    <p class="stat-value">{{ \App\Models\Teacher::where('unit_id', session('unit_id'))->count() }}</p>
                 </div>
                 <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0071e3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
@@ -34,7 +39,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="stat-label">Payrolls This Month</p>
-                    <p class="stat-value">{{ \App\Models\Payroll::where('month', date('n'))->where('year', date('Y'))->count() }}</p>
+                    <p class="stat-value">{{ \App\Models\Payroll::where('unit_id', session('unit_id'))->where('month', date('n'))->where('year', date('Y'))->count() }}</p>
                 </div>
                 <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>

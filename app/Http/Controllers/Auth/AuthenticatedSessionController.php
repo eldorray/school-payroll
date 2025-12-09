@@ -24,9 +24,17 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
+        // Validate unit selection
+        $request->validate([
+            'unit_id' => 'required|exists:units,id',
+        ]);
+
         $request->authenticate();
 
         $request->session()->regenerate();
+
+        // Store selected unit in session
+        $request->session()->put('unit_id', $request->unit_id);
 
         return redirect()->intended(route('dashboard', absolute: false));
     }

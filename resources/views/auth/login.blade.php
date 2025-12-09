@@ -11,6 +11,22 @@
             <p style="font-size: 14px; color: #86868b;">Sign in to your account</p>
         </div>
 
+        <!-- Unit Selection -->
+        <div class="mb-4">
+            <label for="unit_id" class="login-label">Select Unit</label>
+            <select id="unit_id" name="unit_id" class="login-input" required>
+                <option value="">-- Choose School Unit --</option>
+                @foreach(\App\Models\Unit::all() as $unit)
+                    <option value="{{ $unit->id }}" {{ old('unit_id') == $unit->id ? 'selected' : '' }}>
+                        {{ $unit->name }}
+                    </option>
+                @endforeach
+            </select>
+            @error('unit_id')
+                <p class="error-text">{{ $message }}</p>
+            @enderror
+        </div>
+
         <!-- Email Address -->
         <div class="mb-4">
             <label for="email" class="login-label">Email Address</label>
