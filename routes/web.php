@@ -49,6 +49,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Unit Settings
     Route::get('/unit-settings', [\App\Http\Controllers\UnitController::class, 'edit'])->name('units.edit');
     Route::patch('/unit-settings', [\App\Http\Controllers\UnitController::class, 'update'])->name('units.update');
+
+    // Extracurriculars (Master Data)
+    Route::resource('extracurriculars', \App\Http\Controllers\ExtracurricularController::class);
+
+    // Extracurricular Payrolls
+    Route::get('extracurricular-payrolls/report', [\App\Http\Controllers\ExtracurricularPayrollController::class, 'report'])->name('extracurricular-payrolls.report');
+    Route::get('extracurricular-payrolls/print-all', [\App\Http\Controllers\ExtracurricularPayrollController::class, 'printAll'])->name('extracurricular-payrolls.print_all');
+    Route::get('extracurricular-payrolls', [\App\Http\Controllers\ExtracurricularPayrollController::class, 'index'])->name('extracurricular-payrolls.index');
+    Route::get('extracurricular-payrolls/create', [\App\Http\Controllers\ExtracurricularPayrollController::class, 'create'])->name('extracurricular-payrolls.create');
+    Route::post('extracurricular-payrolls', [\App\Http\Controllers\ExtracurricularPayrollController::class, 'store'])->name('extracurricular-payrolls.store');
+    Route::get('extracurricular-payrolls/{extracurricularPayroll}', [\App\Http\Controllers\ExtracurricularPayrollController::class, 'show'])->name('extracurricular-payrolls.show');
+    Route::delete('extracurricular-payrolls/{extracurricularPayroll}', [\App\Http\Controllers\ExtracurricularPayrollController::class, 'destroy'])->name('extracurricular-payrolls.destroy');
 });
 
 require __DIR__.'/auth.php';

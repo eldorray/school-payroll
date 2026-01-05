@@ -52,9 +52,12 @@
         <x-ui.card class="animate-fade-up delay-200">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm text-[hsl(var(--muted-foreground))]">Payroll Bulan Ini</p>
+                    @php
+                        $prevMonth = now()->subMonth();
+                    @endphp
+                    <p class="text-sm text-[hsl(var(--muted-foreground))]">Payroll {{ $prevMonth->translatedFormat('F') }}</p>
                     <p class="text-3xl font-bold text-[hsl(var(--foreground))] mt-1">
-                        {{ \App\Models\Payroll::where('unit_id', session('unit_id'))->where('month', date('n'))->where('year', date('Y'))->count() }}
+                        {{ \App\Models\Payroll::where('unit_id', session('unit_id'))->where('month', $prevMonth->month)->where('year', $prevMonth->year)->count() }}
                     </p>
                 </div>
                 <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
