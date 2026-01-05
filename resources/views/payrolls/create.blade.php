@@ -1,85 +1,97 @@
 @extends('layouts.app')
 
-@section('content')
-    <h2 class="text-2xl font-bold mb-6">Process Payroll</h2>
+@section('title', 'Proses Gaji')
 
-    <div class="bg-white p-6 rounded-lg shadow">
-        <div class="mb-4">
-            <h3 class="text-lg font-semibold">Active Year: <span class="text-blue-600">{{ $activeYear->name }}</span></h3>
-            <p class="text-sm text-gray-600">Standard Rates: Teaching (Rp {{ number_format($activeYear->payrollSettings->teaching_rate_per_hour, 0, ',', '.') }}), Transport (Rp {{ number_format($activeYear->payrollSettings->transport_rate_per_visit, 0, ',', '.') }})</p>
+@section('content')
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-[hsl(var(--foreground))]">Proses Penggajian</h1>
+        <p class="text-sm text-[hsl(var(--muted-foreground))] mt-1">Hitung dan simpan gaji bulanan guru</p>
+    </div>
+
+    <x-ui.card>
+        <div class="mb-6 p-4 rounded-lg bg-[hsl(var(--secondary))]">
+            <h3 class="font-semibold text-[hsl(var(--foreground))]">Tahun Ajaran Aktif: <span class="text-[hsl(var(--primary))]">{{ $activeYear->name }}</span></h3>
+            <p class="text-sm text-[hsl(var(--muted-foreground))] mt-1">
+                Tarif Standar: Mengajar (Rp {{ number_format($activeYear->payrollSettings->teaching_rate_per_hour, 0, ',', '.') }}/jam), 
+                Transport (Rp {{ number_format($activeYear->payrollSettings->transport_rate_per_visit, 0, ',', '.') }}/hari)
+            </p>
         </div>
 
         <form action="{{ route('payrolls.store') }}" method="POST">
             @csrf
             
-            <div class="flex space-x-4 mb-6">
-                <div>
-                    <label class="block text-gray-700 text-sm font-bold mb-2">Month</label>
-                    <select name="month" class="shadow border rounded py-2 px-3 w-40">
-                        @for($i=1; $i<=12; $i++)
-                            <option value="{{ $i }}" {{ $i == $currentMonth ? 'selected' : '' }}>{{ date('F', mktime(0, 0, 0, $i, 10)) }}</option>
-                        @endfor
+            <div class="flex flex-wrap gap-4 mb-6">
+                <div class="space-y-2">
+                    <label class="text-sm font-medium text-[hsl(var(--foreground))]">Bulan</label>
+                    <select name="month" class="input w-40">
+                        @php
+                            $months = [1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'];
+                        @endphp
+                        @foreach($months as $num => $name)
+                            <option value="{{ $num }}" {{ $num == $currentMonth ? 'selected' : '' }}>{{ $name }}</option>
+                        @endforeach
                     </select>
                 </div>
-                <div>
-                    <label class="block text-gray-700 text-sm font-bold mb-2">Year</label>
-                    <input type="number" name="year" value="{{ $currentYear }}" class="shadow border rounded py-2 px-3 w-32">
+                <div class="space-y-2">
+                    <label class="text-sm font-medium text-[hsl(var(--foreground))]">Tahun</label>
+                    <input type="number" name="year" value="{{ $currentYear }}" class="input w-24">
+                </div>
+                <div class="space-y-2 flex-1 min-w-[200px]">
+                    <label class="text-sm font-medium text-[hsl(var(--foreground))]">Nama Batch <span class="text-[hsl(var(--muted-foreground))] font-normal">(Opsional)</span></label>
+                    <input type="text" name="batch_name" class="input" placeholder="Contoh: Gaji Pokok, THR, Bonus, dll">
                 </div>
             </div>
 
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200 mb-6 border">
-                    <thead class="bg-gray-50">
+            <div class="table-wrapper mb-6">
+                <table class="table">
+                    <thead>
                         <tr>
-                            <th rowspan="2" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase border-r text-center align-middle sticky left-0 bg-gray-50 z-10">Teacher</th>
-                            <th rowspan="2" class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase border-r align-middle">Transport<br>(Days)</th>
-                            <th colspan="4" class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase border-b">Potongan (Deductions)</th>
-                            <th rowspan="2" class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase align-middle">Allowances<br>(Est)</th>
+                            <th rowspan="2" class="align-middle">Guru</th>
+                            <th rowspan="2" class="text-center align-middle">Transport<br><span class="text-xs font-normal">(Hari)</span></th>
+                            <th colspan="4" class="text-center border-b border-[hsl(var(--border))]">Potongan</th>
+                            <th rowspan="2" class="text-right align-middle">Tunjangan<br><span class="text-xs font-normal">(Est)</span></th>
                         </tr>
                         <tr>
-                            <th class="px-2 py-1 text-center text-xs font-medium text-gray-500 uppercase border-r">Insentif</th>
-                            <th class="px-2 py-1 text-center text-xs font-medium text-gray-500 uppercase border-r">BPJS</th>
-                            <th class="px-2 py-1 text-center text-xs font-medium text-gray-500 uppercase border-r">Terlambat</th>
-                            <th class="px-2 py-1 text-center text-xs font-medium text-gray-500 uppercase border-r">Lainnya</th>
+                            <th class="text-center text-xs">Insentif</th>
+                            <th class="text-center text-xs">BPJS</th>
+                            <th class="text-center text-xs">Terlambat</th>
+                            <th class="text-center text-xs">Lainnya</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-200">
+                    <tbody>
                         @foreach ($teachers as $teacher)
                         @php 
                             $allowanceTotal = \App\Models\TeacherAllowance::where('teacher_id', $teacher->id)
                                 ->where('academic_year_id', $activeYear->id)
                                 ->sum('amount');
+                            $annualSetting = $teacher->annualSettings->where('academic_year_id', $activeYear->id)->first();
+                            $hours = $annualSetting ? $annualSetting->teaching_hours_per_month : 0;
+                            $annualBpjs = $annualSetting ? $annualSetting->bpjs_amount : 0;
                         @endphp
                         <tr>
-                            <td class="px-4 py-2 font-medium sticky left-0 bg-white border-r z-10">{{ $teacher->name }}<br><span class="text-xs text-gray-400">{{ $teacher->position ?? 'Guru' }}</span></td>
-                            <td class="px-2 py-2 border-r">
-                                @php
-                                    $annualSetting = $teacher->annualSettings->where('academic_year_id', $activeYear->id)->first();
-                                    $hours = $annualSetting ? $annualSetting->teaching_hours_per_month : 0;
-                                @endphp
-                                <div class="text-xs text-gray-500 mb-1">Hrs: {{ $hours }}</div>
-                                @php
-                                    $annualBpjs = $annualSetting ? $annualSetting->bpjs_amount : 0;
-                                @endphp
-                                <div class="text-xs text-gray-500 mb-1">BPJS: {{ number_format($annualBpjs, 0, ',', '.') }}</div>
-                                <input type="number" name="attendance[{{ $teacher->id }}][days]" class="w-16 border rounded px-1 py-1 text-right" min="0" placeholder="0">
+                            <td>
+                                <div class="font-medium text-[hsl(var(--foreground))]">{{ $teacher->name }}</div>
+                                <div class="text-xs text-[hsl(var(--muted-foreground))]">{{ $teacher->position ?? 'Guru' }}</div>
+                                <div class="text-xs text-[hsl(var(--muted-foreground))] mt-1">
+                                    Jam: {{ $hours }} | BPJS: {{ number_format($annualBpjs, 0, ',', '.') }}
+                                </div>
                             </td>
-                            <!-- Deductions -->
-                            <td class="px-2 py-2 border-r">
-                                <input type="number" name="attendance[{{ $teacher->id }}][deductions][incentive_deduction]" class="w-24 border rounded px-1 py-1 text-right text-red-600" min="0" placeholder="0">
+                            <td class="text-center">
+                                <input type="number" name="attendance[{{ $teacher->id }}][days]" class="input w-16 text-center" min="0" placeholder="0">
                             </td>
-                            <!-- BPJS removed from input, used from annual setting -->
-                            <td class="px-2 py-2 border-r bg-gray-50 text-center text-gray-400 text-xs">
-                                (Auto)
+                            <td class="text-center">
+                                <input type="number" name="attendance[{{ $teacher->id }}][deductions][incentive_deduction]" class="input w-20 text-right text-[hsl(var(--destructive))]" min="0" placeholder="0">
                             </td>
-                            <td class="px-2 py-2 border-r">
-                                <input type="number" name="attendance[{{ $teacher->id }}][deductions][transport_deduction]" class="w-24 border rounded px-1 py-1 text-right text-red-600" min="0" placeholder="0">
+                            <td class="text-center bg-[hsl(var(--secondary))]">
+                                <span class="text-xs text-[hsl(var(--muted-foreground))]">(Auto)</span>
                             </td>
-                            <td class="px-2 py-2 border-r">
-                                <input type="number" name="attendance[{{ $teacher->id }}][deductions][other_deduction]" class="w-24 border rounded px-1 py-1 text-right text-red-600" min="0" placeholder="0">
+                            <td class="text-center">
+                                <input type="number" name="attendance[{{ $teacher->id }}][deductions][transport_deduction]" class="input w-20 text-right text-[hsl(var(--destructive))]" min="0" placeholder="0">
                             </td>
-                            
-                            <td class="px-4 py-2 text-gray-600 text-right">
+                            <td class="text-center">
+                                <input type="number" name="attendance[{{ $teacher->id }}][deductions][other_deduction]" class="input w-20 text-right text-[hsl(var(--destructive))]" min="0" placeholder="0">
+                            </td>
+                            <td class="text-right text-[hsl(var(--muted-foreground))]">
                                 {{ number_format($allowanceTotal, 0, ',', '.') }}
                             </td>
                         </tr>
@@ -88,11 +100,14 @@
                 </table>
             </div>
 
-            <div class="flex items-center justify-end">
-                <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded focus:outline-none shadow" type="submit">
-                    Calculate & Save Payroll
-                </button>
+            <div class="flex items-center justify-end pt-4 border-t border-[hsl(var(--border))]">
+                <x-ui.button type="submit">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                    </svg>
+                    Hitung & Simpan Gaji
+                </x-ui.button>
             </div>
         </form>
-    </div>
+    </x-ui.card>
 @endsection

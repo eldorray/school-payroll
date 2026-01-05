@@ -22,6 +22,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('academic-years/{academicYear}/activate', [AcademicYearController::class, 'activate'])->name('academic-years.activate');
 
     // Teachers
+    Route::get('teachers/import', [TeacherController::class, 'showImportForm'])->name('teachers.import');
+    Route::get('teachers/import/template', [TeacherController::class, 'downloadTemplate'])->name('teachers.import.template');
+    Route::post('teachers/import', [TeacherController::class, 'import'])->name('teachers.import.store');
+    Route::post('teachers/{teacher}/toggle-active', [TeacherController::class, 'toggleActive'])->name('teachers.toggle-active');
     Route::resource('teachers', TeacherController::class);
 
     // Payrolls - Custom routes BEFORE resource to avoid conflicts
@@ -30,6 +34,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('payrolls', [PayrollController::class, 'index'])->name('payrolls.index');
     Route::get('payrolls/create', [PayrollController::class, 'create'])->name('payrolls.create');
     Route::post('payrolls', [PayrollController::class, 'store'])->name('payrolls.store');
+    Route::get('payrolls/batch/{batch}', [PayrollController::class, 'showBatch'])->name('payrolls.batch');
+    Route::get('payrolls/batch/{batch}/edit', [PayrollController::class, 'editBatch'])->name('payrolls.batch.edit');
+    Route::patch('payrolls/batch/{batch}', [PayrollController::class, 'updateBatch'])->name('payrolls.batch.update');
+    Route::delete('payrolls/batch/{batch}', [PayrollController::class, 'destroyBatch'])->name('payrolls.batch.destroy');
     Route::get('payrolls/{payroll}', [PayrollController::class, 'show'])->name('payrolls.show');
     Route::delete('payrolls/delete-month', [PayrollController::class, 'deleteMonth'])->name('payrolls.delete_month');
 

@@ -1,108 +1,194 @@
 @extends('layouts.app')
 
+@section('title', 'Penggajian')
+
 @section('content')
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-        <h1 class="page-title" style="margin-bottom: 0;">Payroll Records</h1>
+        <div>
+            <h1 class="text-2xl font-bold text-[hsl(var(--foreground))]">Data Penggajian</h1>
+            <p class="text-sm text-[hsl(var(--muted-foreground))] mt-1">Kelola gaji bulanan guru dan pengajar</p>
+        </div>
         <div class="flex flex-wrap gap-2">
-            <a href="{{ route('payrolls.report', ['month' => $selectedMonth, 'year' => $selectedYear]) }}" target="_blank" class="btn-secondary">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-                Monthly Report
-            </a>
-            <a href="{{ route('payrolls.print_all', ['month' => $selectedMonth, 'year' => $selectedYear]) }}" target="_blank" class="btn-secondary">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-                Print All Slips
-            </a>
-            <a href="{{ route('payrolls.create') }}" class="btn-primary">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                Process Payroll
+            <a href="{{ route('payrolls.create') }}">
+                <x-ui.button>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
+                    Proses Gaji Baru
+                </x-ui.button>
             </a>
         </div>
     </div>
-
-    <!-- Delete All Button (separate row for visibility) -->
-    @if(count($payrolls) > 0)
-    <div class="mb-4">
-        <form method="POST" action="{{ route('payrolls.delete_month') }}" onsubmit="return confirm('Are you sure you want to delete ALL payroll records for {{ date('F', mktime(0, 0, 0, $selectedMonth, 10)) }} {{ $selectedYear }}? This action cannot be undone.');">
-            @csrf
-            @method('DELETE')
-            <input type="hidden" name="month" value="{{ $selectedMonth }}">
-            <input type="hidden" name="year" value="{{ $selectedYear }}">
-            <button type="submit" class="btn-secondary" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.3);">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
-                Delete All Payrolls ({{ date('F', mktime(0, 0, 0, $selectedMonth, 10)) }} {{ $selectedYear }})
-            </button>
-        </form>
-    </div>
-    @endif
 
     @if(!$activeYear)
-        <div class="alert" style="background: rgba(245, 158, 11, 0.15); color: #92400e; border: 1px solid rgba(245, 158, 11, 0.3);">
-            <strong>Warning:</strong> No active Academic Year found. Please activate one to manage payrolls.
-        </div>
+        <x-ui.alert type="warning" class="mb-6">
+            <strong>Peringatan:</strong> Tidak ada Tahun Ajaran aktif. Silakan aktifkan salah satu untuk mengelola penggajian.
+        </x-ui.alert>
     @endif
 
     <!-- Filters -->
-    <div class="glass-card p-5 mb-6">
+    <x-ui.card class="mb-6">
         <form method="GET" action="{{ route('payrolls.index') }}" class="flex flex-wrap items-end gap-4">
-            <div>
-                <label class="block text-sm font-medium mb-2" style="color: var(--text-secondary);">Month</label>
-                <select name="month" class="input-modern" style="width: auto; min-width: 150px;">
-                    @for($i=1; $i<=12; $i++)
-                        <option value="{{ $i }}" {{ $i == $selectedMonth ? 'selected' : '' }}>{{ date('F', mktime(0, 0, 0, $i, 10)) }}</option>
-                    @endfor
+            <div class="space-y-2">
+                <label class="text-sm font-medium text-[hsl(var(--foreground))]">Bulan</label>
+                <select name="month" class="input w-auto min-w-[150px]">
+                    @php
+                        $months = [1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'];
+                    @endphp
+                    @foreach($months as $num => $name)
+                        <option value="{{ $num }}" {{ $num == $selectedMonth ? 'selected' : '' }}>{{ $name }}</option>
+                    @endforeach
                 </select>
             </div>
-            <div>
-                <label class="block text-sm font-medium mb-2" style="color: var(--text-secondary);">Year</label>
-                <input type="number" name="year" value="{{ $selectedYear }}" class="input-modern" style="width: 100px;">
+            <div class="space-y-2">
+                <label class="text-sm font-medium text-[hsl(var(--foreground))]">Tahun</label>
+                <input type="number" name="year" value="{{ $selectedYear }}" class="input w-24">
             </div>
-            <button type="submit" class="btn-primary">
-                Apply Filter
-            </button>
+            <x-ui.button type="submit">
+                Terapkan Filter
+            </x-ui.button>
         </form>
-    </div>
+    </x-ui.card>
 
-    <div class="glass-card overflow-hidden">
-        <table class="table-modern">
-            <thead>
-                <tr>
-                    <th>Teacher</th>
-                    <th>Hours</th>
-                    <th>Attendance</th>
-                    <th>Total Salary</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse ($payrolls as $payroll)
-                    <tr>
-                        <td>
-                            <div class="font-medium">{{ $payroll->teacher->name }}</div>
-                            <div class="text-xs" style="color: var(--text-secondary);">{{ $payroll->teacher->position ?? 'Teacher' }}</div>
-                        </td>
-                        <td>
-                            <span class="font-medium">{{ $payroll->teaching_hours }}</span> hrs
-                        </td>
-                        <td>
-                            <span class="font-medium">{{ $payroll->attendance_days }}</span> days
-                        </td>
-                        <td>
-                            <span class="font-semibold" style="color: #22c55e;">Rp {{ number_format($payroll->total_salary, 0, ',', '.') }}</span>
-                        </td>
-                        <td>
-                            <a href="{{ route('payrolls.show', $payroll) }}" class="btn-secondary" style="padding: 6px 12px; font-size: 12px;" target="_blank">
-                                View Slip
-                            </a>
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="5" class="text-center py-8" style="color: var(--text-secondary);">
-                            No payroll records found for this period.
-                        </td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
+    <!-- Batches Accordion -->
+    <div class="space-y-3">
+        @forelse ($batches as $batch)
+            <div class="border border-[hsl(var(--border))] rounded-lg bg-[hsl(var(--card))] overflow-hidden" x-data="{ open: false }">
+                <!-- Accordion Header -->
+                <button 
+                    @click="open = !open" 
+                    class="w-full px-4 py-4 flex items-center justify-between hover:bg-[hsl(var(--secondary))]/50 transition-colors"
+                >
+                    <div class="flex items-center gap-4">
+                        <div class="p-2 rounded-lg bg-[hsl(var(--primary))]/10">
+                            <svg class="w-5 h-5 text-[hsl(var(--primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                            </svg>
+                        </div>
+                        <div class="text-left">
+                            <h3 class="font-semibold text-[hsl(var(--foreground))]">
+                                {{ $batch->name ?? 'Honor' }}
+                            </h3>
+                            <p class="text-sm text-[hsl(var(--muted-foreground))]">
+                                Dibuat: {{ $batch->created_at->format('d M Y H:i') }} • 
+                                {{ $batch->payrolls->count() }} guru • 
+                                Total: <span class="font-semibold text-green-600">Rp {{ number_format($batch->total_amount, 0, ',', '.') }}</span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <svg 
+                            class="w-5 h-5 text-[hsl(var(--muted-foreground))] transition-transform duration-200" 
+                            :class="{ 'rotate-180': open }"
+                            fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        >
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </div>
+                </button>
+
+                <!-- Accordion Content -->
+                <div x-show="open" x-collapse class="border-t border-[hsl(var(--border))]">
+                    <!-- Action Buttons -->
+                    <div class="px-4 py-3 bg-[hsl(var(--secondary))]/30 flex flex-wrap gap-2">
+                        <a href="{{ route('payrolls.batch.edit', $batch) }}">
+                            <x-ui.button variant="outline" size="sm">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                </svg>
+                                Edit Batch
+                            </x-ui.button>
+                        </a>
+                        <a href="{{ route('payrolls.report', ['batch' => $batch->id]) }}" target="_blank">
+                            <x-ui.button variant="outline" size="sm">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                                Laporan
+                            </x-ui.button>
+                        </a>
+                        <a href="{{ route('payrolls.print_all', ['batch' => $batch->id]) }}" target="_blank">
+                            <x-ui.button variant="outline" size="sm">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+                                </svg>
+                                Cetak Slip
+                            </x-ui.button>
+                        </a>
+                        <form action="{{ route('payrolls.batch.destroy', $batch) }}" method="POST" class="inline-block" onsubmit="return confirm('Yakin ingin menghapus batch ini?');">
+                            @csrf
+                            @method('DELETE')
+                            <x-ui.button type="submit" variant="destructive" size="sm">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                </svg>
+                                Hapus
+                            </x-ui.button>
+                        </form>
+                    </div>
+
+                    <!-- Table -->
+                    <div class="table-wrapper">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Guru</th>
+                                    <th class="text-center">Jam</th>
+                                    <th class="text-center">Kehadiran</th>
+                                    <th class="text-right">Total Gaji</th>
+                                    <th class="text-right">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($batch->payrolls as $payroll)
+                                    <tr>
+                                        <td>
+                                            <div class="font-medium text-[hsl(var(--foreground))]">{{ $payroll->teacher->name }}</div>
+                                            <div class="text-xs text-[hsl(var(--muted-foreground))]">{{ $payroll->teacher->position ?? 'Guru' }}</div>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="font-medium">{{ $payroll->teaching_hours }}</span>
+                                            <span class="text-[hsl(var(--muted-foreground))] text-xs">jam</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="font-medium">{{ $payroll->attendance_days }}</span>
+                                            <span class="text-[hsl(var(--muted-foreground))] text-xs">hari</span>
+                                        </td>
+                                        <td class="text-right">
+                                            <span class="font-semibold text-green-600">Rp {{ number_format($payroll->total_salary, 0, ',', '.') }}</span>
+                                        </td>
+                                        <td class="text-right">
+                                            <a href="{{ route('payrolls.show', $payroll) }}" target="_blank">
+                                                <x-ui.button variant="outline" size="sm">Slip</x-ui.button>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                            <tfoot>
+                                <tr class="bg-[hsl(var(--secondary))]/50">
+                                    <td colspan="3" class="font-semibold text-right">Total Batch:</td>
+                                    <td class="text-right font-bold text-green-600">Rp {{ number_format($batch->total_amount, 0, ',', '.') }}</td>
+                                    <td></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        @empty
+            <x-ui.card>
+                <div class="text-center py-8 text-[hsl(var(--muted-foreground))]">
+                    @php
+                        $monthNames = [1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'];
+                    @endphp
+                    <svg class="w-12 h-12 mx-auto mb-4 text-[hsl(var(--muted-foreground))]/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                    </svg>
+                    <p class="mb-2">Tidak ada data gaji untuk {{ $monthNames[$selectedMonth] }} {{ $selectedYear }}.</p>
+                    <a href="{{ route('payrolls.create') }}" class="text-[hsl(var(--primary))] hover:underline font-medium">Buat penggajian baru →</a>
+                </div>
+            </x-ui.card>
+        @endforelse
     </div>
 @endsection

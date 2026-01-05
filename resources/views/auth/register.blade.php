@@ -2,51 +2,64 @@
     <form method="POST" action="{{ route('register') }}">
         @csrf
 
-        <!-- Name -->
-        <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
-            <x-input-error :messages="$errors->get('name')" class="mt-2" />
+        <!-- Welcome Text -->
+        <div class="text-center mb-6">
+            <h2 class="text-xl font-semibold text-[hsl(var(--foreground))]">Buat Akun</h2>
+            <p class="text-sm text-[hsl(var(--muted-foreground))] mt-1">Daftar untuk mulai menggunakan sistem</p>
         </div>
+
+        <!-- Name -->
+        <x-ui.input
+            name="name"
+            label="Nama Lengkap"
+            :value="old('name')"
+            :error="$errors->first('name')"
+            class="mb-4"
+            required
+            autofocus
+        />
 
         <!-- Email Address -->
-        <div class="mt-4">
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
+        <x-ui.input
+            name="email"
+            type="email"
+            label="Alamat Email"
+            placeholder="email@contoh.com"
+            :value="old('email')"
+            :error="$errors->first('email')"
+            class="mb-4"
+            required
+        />
 
         <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="new-password" />
-
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
+        <x-ui.input
+            name="password"
+            type="password"
+            label="Password"
+            placeholder="••••••••"
+            :error="$errors->first('password')"
+            class="mb-4"
+            required
+        />
 
         <!-- Confirm Password -->
-        <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
+        <x-ui.input
+            name="password_confirmation"
+            type="password"
+            label="Konfirmasi Password"
+            placeholder="••••••••"
+            :error="$errors->first('password_confirmation')"
+            class="mb-6"
+            required
+        />
 
-            <x-text-input id="password_confirmation" class="block mt-1 w-full"
-                            type="password"
-                            name="password_confirmation" required autocomplete="new-password" />
+        <x-ui.button type="submit" class="w-full">
+            Daftar
+        </x-ui.button>
 
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-        </div>
-
-        <div class="flex items-center justify-end mt-4">
-            <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('login') }}">
-                {{ __('Already registered?') }}
-            </a>
-
-            <x-primary-button class="ms-4">
-                {{ __('Register') }}
-            </x-primary-button>
-        </div>
+        <p class="text-center mt-6 text-sm text-[hsl(var(--muted-foreground))]">
+            Sudah punya akun? 
+            <a href="{{ route('login') }}" class="text-[hsl(var(--primary))] hover:underline">Masuk</a>
+        </p>
     </form>
 </x-guest-layout>

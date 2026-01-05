@@ -5,7 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Teacher;
 use App\Models\AcademicYear;
 use App\Models\TeacherAllowance;
+use App\Imports\TeachersImport;
+use App\Exports\TeachersTemplateExport;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class TeacherController extends Controller
 {
@@ -13,7 +16,9 @@ class TeacherController extends Controller
     {
         $unitId = session('unit_id');
         $teachers = Teacher::where('unit_id', $unitId)->orderBy('name')->get();
-        return view('teachers.index', compact('teachers'));
+        $activeYear = AcademicYear::where('is_active', true)->first();
+        
+        return view('teachers.index', compact('teachers', 'activeYear'));
     }
 
     public function create()
@@ -167,4 +172,77 @@ class TeacherController extends Controller
         // Actually migrations have cascadeOnDelete, so it's safe.
         return redirect()->route('teachers.index')->with('success', 'Teacher deleted.');
     }
+
+    /**
+     * Toggle teacher active status for payroll
+     */
+    public function toggleActive(Teacher $teacher)
+    {
+        $teacher->update(['is_active' => !$teacher->is_active]);
+        
+        $status = $teacher->is_active ? 'diikutkan' : 'dikecualikan dari';
+        return redirect()->route('teachers.index')
+            ->with('success', "Guru {$teacher->name} berhasil {$status} proses penggajian.");
+    }
+
+    /**
+     * Show the import form
+     */
+    public function showImportForm()
+    {
+        return view('teachers.import');
+    }
+
+    /**
+     * Import teachers from Excel file
+     */
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv|max:2048',
+        ], [
+            'file.required' => 'File Excel wajib diunggah.',
+            'file.mimes' => 'File harus berformat Excel (xlsx, xls) atau CSV.',
+            'file.max' => 'Ukuran file maksimal 2MB.',
+        ]);
+
+        try {
+            $unitId = session('unit_id');
+            $import = new TeachersImport($unitId);
+            
+            Excel::import($import, $request->file('file'));
+
+            $count = $import->getImportedCount();
+            return redirect()->route('teachers.index')
+                ->with('success', "Berhasil mengimpor {$count} data guru.");
+        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+            $failures = $e->failures();
+            $errorMessages = [];
+            foreach ($failures as $failure) {
+                $errorMessages[] = "Baris {$failure->row()}: " . implode(', ', $failure->errors());
+            }
+            return redirect()->back()
+                ->withErrors(['file' => 'Terjadi kesalahan validasi: ' . implode('; ', $errorMessages)]);
+        } catch (\Illuminate\Database\QueryException $e) {
+            // Handle database errors with user-friendly messages
+            if (str_contains($e->getMessage(), 'Duplicate entry') && str_contains($e->getMessage(), 'nip')) {
+                return redirect()->back()
+                    ->withErrors(['file' => 'Gagal import: Ada NIP yang sama dalam file Excel. Pastikan setiap guru memiliki NIP yang berbeda, atau kosongkan kolom NIP jika tidak ada.']);
+            }
+            return redirect()->back()
+                ->withErrors(['file' => 'Terjadi kesalahan database. Silakan periksa kembali data Anda.']);
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->withErrors(['file' => 'Terjadi kesalahan saat mengimpor. Silakan coba lagi atau hubungi administrator.']);
+        }
+    }
+
+    /**
+     * Download Excel template for import
+     */
+    public function downloadTemplate()
+    {
+        return Excel::download(new TeachersTemplateExport, 'template_import_guru.xlsx');
+    }
 }
+

@@ -3,300 +3,250 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
     <title>{{ config('app.name', 'School Payroll') }}</title>
-    
-    <!-- Google Fonts: Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />
+
+    <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    
-    <style>
-        :root {
-            --bg-primary: #f5f5f7;
-            --bg-secondary: rgba(255, 255, 255, 0.72);
-            --bg-sidebar: rgba(30, 30, 30, 0.85);
-            --text-primary: #1d1d1f;
-            --text-secondary: #86868b;
-            --text-sidebar: rgba(255, 255, 255, 0.9);
-            --accent: #0071e3;
-            --accent-hover: #0077ed;
-            --border: rgba(0, 0, 0, 0.08);
-            --shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
-            --radius: 12px;
-            --radius-lg: 16px;
-        }
-        
-        * {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-        }
-        
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            background-attachment: fixed;
-            min-height: 100vh;
-        }
-        
-        /* Glassmorphism Sidebar */
-        .sidebar {
-            background: var(--bg-sidebar);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-right: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .sidebar-brand {
-            padding: 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .sidebar-nav a {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 20px;
-            color: var(--text-sidebar);
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 500;
-            border-radius: 8px;
-            margin: 4px 12px;
-            transition: all 0.2s ease;
-        }
-        
-        .sidebar-nav a:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-        
-        .sidebar-nav a.active {
-            background: rgba(255, 255, 255, 0.15);
-        }
-        
-        /* Main Content Area */
-        .main-content {
-            background: var(--bg-primary);
-            min-height: 100vh;
-        }
-        
-        /* Glass Card */
-        .glass-card {
-            background: var(--bg-secondary);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow);
-        }
-        
-        /* Modern Button */
-        .btn-primary {
-            background: var(--accent);
-            color: white;
-            padding: 10px 20px;
-            border-radius: var(--radius);
-            font-weight: 500;
-            font-size: 14px;
-            border: none;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            text-decoration: none;
-        }
-        
-        .btn-primary:hover {
-            background: var(--accent-hover);
-            transform: translateY(-1px);
-        }
-        
-        .btn-secondary {
-            background: rgba(0, 0, 0, 0.05);
-            color: var(--text-primary);
-            padding: 10px 20px;
-            border-radius: var(--radius);
-            font-weight: 500;
-            font-size: 14px;
-            border: 1px solid var(--border);
-            cursor: pointer;
-            transition: all 0.2s ease;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .btn-secondary:hover {
-            background: rgba(0, 0, 0, 0.08);
-        }
-        
-        /* Modern Input */
-        .input-modern {
-            background: white;
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 12px 16px;
-            font-size: 14px;
-            width: 100%;
-            transition: all 0.2s ease;
-        }
-        
-        .input-modern:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.15);
-        }
-        
-        /* Modern Table */
-        .table-modern {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-        }
-        
-        .table-modern th {
-            background: rgba(0, 0, 0, 0.02);
-            padding: 14px 16px;
-            text-align: left;
-            font-weight: 600;
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--text-secondary);
-            border-bottom: 1px solid var(--border);
-        }
-        
-        .table-modern td {
-            padding: 14px 16px;
-            border-bottom: 1px solid var(--border);
-            font-size: 14px;
-        }
-        
-        .table-modern tr:hover td {
-            background: rgba(0, 0, 0, 0.02);
-        }
-        
-        /* Alert Styles */
-        .alert {
-            padding: 14px 18px;
-            border-radius: var(--radius);
-            margin-bottom: 16px;
-            font-size: 14px;
-        }
-        
-        .alert-success {
-            background: rgba(52, 199, 89, 0.15);
-            color: #1d7a3d;
-            border: 1px solid rgba(52, 199, 89, 0.3);
-        }
-        
-        .alert-error {
-            background: rgba(255, 59, 48, 0.15);
-            color: #c41e14;
-            border: 1px solid rgba(255, 59, 48, 0.3);
-        }
-        
-        /* Page Title */
-        .page-title {
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 24px;
-        }
-        
-        /* Stat Card */
-        .stat-card {
-            background: white;
-            border-radius: var(--radius-lg);
-            padding: 24px;
-            border: 1px solid var(--border);
-        }
-        
-        .stat-value {
-            font-size: 32px;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-        
-        .stat-label {
-            font-size: 14px;
-            color: var(--text-secondary);
-            margin-top: 4px;
-        }
-    </style>
 </head>
-<body>
-    <div class="min-h-screen flex">
+<body class="font-sans antialiased">
+    <div class="min-h-screen bg-[hsl(var(--background))]">
         <!-- Sidebar -->
-        <aside class="sidebar w-64 min-h-screen hidden md:block">
-            <div class="sidebar-brand">
-                @php $currentUnit = \App\Models\Unit::find(session('unit_id')); @endphp
-                <h1 class="text-xl font-bold text-white">{{ $currentUnit ? $currentUnit->name : 'School Payroll' }}</h1>
-                <p class="text-xs text-white/50 mt-1">Management System</p>
-            </div>
-            <nav class="sidebar-nav mt-4">
-                <a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'active' : '' }}">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
-                    Dashboard
-                </a>
-                <a href="{{ route('academic-years.index') }}" class="{{ request()->routeIs('academic-years.*') ? 'active' : '' }}">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                    Academic Years
-                </a>
-                <a href="{{ route('teachers.index') }}" class="{{ request()->routeIs('teachers.*') ? 'active' : '' }}">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                    Teachers
-                </a>
-                <a href="{{ route('payrolls.index') }}" class="{{ request()->routeIs('payrolls.*') ? 'active' : '' }}">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-                    Payroll & Reports
-                </a>
-                <a href="{{ route('units.edit') }}" class="{{ request()->routeIs('units.*') ? 'active' : '' }}">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-                    Unit Settings
-                </a>
-            </nav>
-            
-            <!-- User Menu at Bottom -->
-            <div style="position: absolute; bottom: 20px; left: 0; right: 0; padding: 0 12px;">
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button type="submit" class="sidebar-nav" style="width: 100%; background: rgba(255,255,255,0.05); border-radius: 8px; padding: 12px 20px; color: rgba(255,255,255,0.7); font-size: 13px; border: none; cursor: pointer; display: flex; align-items: center; gap: 12px;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                        Logout
-                    </button>
-                </form>
+        <aside class="sidebar hidden lg:block">
+            <div class="flex flex-col h-full">
+                <!-- Logo -->
+                <div class="flex items-center gap-3 px-6 py-5 border-b border-[hsl(var(--border))]">
+                    <div class="w-8 h-8 rounded-lg bg-[hsl(var(--primary))] flex items-center justify-center">
+                        <svg class="w-5 h-5 text-[hsl(var(--primary-foreground))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    @php $currentUnit = \App\Models\Unit::find(session('unit_id')); @endphp
+                    <div class="flex-1 min-w-0">
+                        <span class="font-semibold text-[hsl(var(--foreground))] block truncate">{{ $currentUnit ? $currentUnit->name : 'School Payroll' }}</span>
+                        <span class="text-xs text-[hsl(var(--muted-foreground))]">Management System</span>
+                    </div>
+                </div>
+
+                <!-- Navigation -->
+                <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+                    <a href="{{ route('dashboard') }}" 
+                       class="sidebar-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
+                        </svg>
+                        Dashboard
+                    </a>
+
+                    <a href="{{ route('academic-years.index') }}" 
+                       class="sidebar-link {{ request()->routeIs('academic-years.*') ? 'active' : '' }}">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                        Tahun Ajaran
+                    </a>
+
+                    <a href="{{ route('teachers.index') }}" 
+                       class="sidebar-link {{ request()->routeIs('teachers.*') ? 'active' : '' }}">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        Data Guru
+                    </a>
+
+                    <a href="{{ route('payrolls.index') }}" 
+                       class="sidebar-link {{ request()->routeIs('payrolls.*') ? 'active' : '' }}">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        Penggajian
+                    </a>
+
+                    <a href="{{ route('units.edit') }}" 
+                       class="sidebar-link {{ request()->routeIs('units.*') ? 'active' : '' }}">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                        Pengaturan Unit
+                    </a>
+                </nav>
+
+                <!-- User Menu -->
+                <div class="px-4 py-4 border-t border-[hsl(var(--border))]">
+                    <div class="flex items-center gap-3 mb-3 px-2">
+                        <div class="w-8 h-8 rounded-full bg-[hsl(var(--secondary))] flex items-center justify-center">
+                            <span class="text-sm font-medium text-[hsl(var(--secondary-foreground))]">
+                                {{ substr(auth()->user()->name, 0, 1) }}
+                            </span>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-[hsl(var(--foreground))] truncate">
+                                {{ auth()->user()->name }}
+                            </p>
+                            <p class="text-xs text-[hsl(var(--muted-foreground))] truncate">
+                                {{ auth()->user()->email }}
+                            </p>
+                        </div>
+                    </div>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="sidebar-link w-full text-left text-[hsl(var(--destructive))]">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                            </svg>
+                            Logout
+                        </button>
+                    </form>
+                </div>
             </div>
         </aside>
 
+        <!-- Mobile Sidebar Overlay -->
+        <div x-data="{ open: false }" @toggle-sidebar.window="open = !open">
+            <!-- Backdrop -->
+            <div x-show="open" 
+                 x-transition:enter="transition-opacity ease-out duration-300"
+                 x-transition:enter-start="opacity-0"
+                 x-transition:enter-end="opacity-100"
+                 x-transition:leave="transition-opacity ease-in duration-200"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0"
+                 @click="open = false"
+                 class="fixed inset-0 bg-black/50 z-40 lg:hidden"></div>
+            
+            <!-- Mobile Sidebar -->
+            <aside x-show="open"
+                   x-transition:enter="transition ease-out duration-300"
+                   x-transition:enter-start="-translate-x-full"
+                   x-transition:enter-end="translate-x-0"
+                   x-transition:leave="transition ease-in duration-200"
+                   x-transition:leave-start="translate-x-0"
+                   x-transition:leave-end="-translate-x-full"
+                   class="sidebar fixed lg:hidden z-50">
+                <div class="flex flex-col h-full">
+                    <!-- Logo -->
+                    <div class="flex items-center gap-3 px-6 py-5 border-b border-[hsl(var(--border))]">
+                        <div class="w-8 h-8 rounded-lg bg-[hsl(var(--primary))] flex items-center justify-center">
+                            <svg class="w-5 h-5 text-[hsl(var(--primary-foreground))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <span class="font-semibold text-[hsl(var(--foreground))]">{{ $currentUnit ? $currentUnit->name : 'School Payroll' }}</span>
+                    </div>
+
+                    <!-- Navigation -->
+                    <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+                        <a href="{{ route('dashboard') }}" class="sidebar-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
+                            </svg>
+                            Dashboard
+                        </a>
+                        <a href="{{ route('academic-years.index') }}" class="sidebar-link {{ request()->routeIs('academic-years.*') ? 'active' : '' }}">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            Tahun Ajaran
+                        </a>
+                        <a href="{{ route('teachers.index') }}" class="sidebar-link {{ request()->routeIs('teachers.*') ? 'active' : '' }}">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                            </svg>
+                            Data Guru
+                        </a>
+                        <a href="{{ route('payrolls.index') }}" class="sidebar-link {{ request()->routeIs('payrolls.*') ? 'active' : '' }}">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                            </svg>
+                            Penggajian
+                        </a>
+                        <a href="{{ route('units.edit') }}" class="sidebar-link {{ request()->routeIs('units.*') ? 'active' : '' }}">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                            Pengaturan Unit
+                        </a>
+                    </nav>
+
+                    <!-- User Menu -->
+                    <div class="px-4 py-4 border-t border-[hsl(var(--border))]">
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="sidebar-link w-full text-left text-[hsl(var(--destructive))]">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                                </svg>
+                                Logout
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </aside>
+        </div>
+
         <!-- Main Content -->
-        <div class="main-content flex-1 flex flex-col">
-            <!-- Mobile Header -->
-            <header class="md:hidden sidebar p-4">
-                <span class="font-bold text-white">School Payroll</span>
+        <div class="lg:pl-64">
+            <!-- Top Header -->
+            <header class="sticky top-0 z-30 flex items-center justify-between h-16 px-6 border-b border-[hsl(var(--border))] bg-[hsl(var(--background))/0.8] backdrop-blur-lg">
+                <!-- Mobile Menu Button -->
+                <button type="button" class="lg:hidden p-2 -ml-2 rounded-lg hover:bg-[hsl(var(--accent))]" x-data @click="$dispatch('toggle-sidebar')">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+
+                <!-- Page Title -->
+                @hasSection('title')
+                    <h1 class="text-lg font-semibold text-[hsl(var(--foreground))]">
+                        @yield('title')
+                    </h1>
+                @else
+                    <div></div>
+                @endif
+
+                <!-- Right Side -->
+                <div class="flex items-center gap-4">
+                    <span class="text-sm text-[hsl(var(--muted-foreground))] hidden sm:block">
+                        {{ auth()->user()->name }}
+                    </span>
+                </div>
             </header>
 
             <!-- Page Content -->
-            <main class="flex-1 p-8">
+            <main class="p-6">
                 <!-- Flash Messages -->
                 @if(session('success'))
-                    <div class="alert alert-success">
-                        {{ session('success') }}
+                    <div class="mb-6">
+                        <x-ui.alert type="success" dismissible>
+                            {{ session('success') }}
+                        </x-ui.alert>
                     </div>
                 @endif
+
                 @if(session('error'))
-                    <div class="alert alert-error">
-                        {{ session('error') }}
+                    <div class="mb-6">
+                        <x-ui.alert type="error" dismissible>
+                            {{ session('error') }}
+                        </x-ui.alert>
                     </div>
                 @endif
+
                 @if($errors->any())
-                    <div class="alert alert-error">
-                        <ul class="list-disc pl-5">
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
+                    <div class="mb-6">
+                        <x-ui.alert type="error" dismissible>
+                            <ul class="list-disc pl-5">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </x-ui.alert>
                     </div>
                 @endif
 

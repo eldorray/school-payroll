@@ -1,68 +1,102 @@
 @extends('layouts.app')
 
+@section('title', 'Dashboard')
+
 @section('content')
-    <div class="mb-6">
-        <h1 class="page-title" style="margin-bottom: 4px;">Dashboard</h1>
+    <div class="mb-8">
+        <h1 class="text-2xl md:text-3xl font-bold text-[hsl(var(--foreground))] mb-1">Dashboard</h1>
+        @php $unit = \App\Models\Unit::find(session('unit_id')); @endphp
         @if($unit)
-            <p style="font-size: 14px; color: var(--text-secondary);">{{ $unit->name }}</p>
+            <p class="text-sm text-[hsl(var(--muted-foreground))]">{{ $unit->name }}</p>
         @endif
     </div>
     
+    <!-- Stats Grid -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <!-- Stats Cards -->
-        <div class="stat-card">
+        <!-- Active Teachers -->
+        <x-ui.card class="animate-fade-up">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="stat-label">Active Teachers</p>
-                    <p class="stat-value">{{ \App\Models\Teacher::where('unit_id', session('unit_id'))->count() }}</p>
+                    <p class="text-sm text-[hsl(var(--muted-foreground))]">Guru Aktif</p>
+                    <p class="text-3xl font-bold text-[hsl(var(--foreground))] mt-1">
+                        {{ \App\Models\Teacher::where('unit_id', session('unit_id'))->count() }}
+                    </p>
                 </div>
                 <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0071e3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                    </svg>
                 </div>
             </div>
-        </div>
+        </x-ui.card>
 
-        <div class="stat-card">
+        <!-- Active Academic Year -->
+        <x-ui.card class="animate-fade-up delay-100">
             <div class="flex items-center justify-between">
                 <div>
                     @php $activeYear = \App\Models\AcademicYear::where('is_active', true)->first(); @endphp
-                    <p class="stat-label">Active Academic Year</p>
-                    <p class="stat-value text-xl">{{ $activeYear ? $activeYear->name : 'None' }}</p>
+                    <p class="text-sm text-[hsl(var(--muted-foreground))]">Tahun Ajaran Aktif</p>
+                    <p class="text-xl font-bold text-[hsl(var(--foreground))] mt-1">
+                        {{ $activeYear ? $activeYear->name : 'Belum diatur' }}
+                    </p>
                 </div>
                 <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
                 </div>
             </div>
-        </div>
+        </x-ui.card>
 
-        <div class="stat-card">
+        <!-- Payrolls This Month -->
+        <x-ui.card class="animate-fade-up delay-200">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="stat-label">Payrolls This Month</p>
-                    <p class="stat-value">{{ \App\Models\Payroll::where('unit_id', session('unit_id'))->where('month', date('n'))->where('year', date('Y'))->count() }}</p>
+                    <p class="text-sm text-[hsl(var(--muted-foreground))]">Payroll Bulan Ini</p>
+                    <p class="text-3xl font-bold text-[hsl(var(--foreground))] mt-1">
+                        {{ \App\Models\Payroll::where('unit_id', session('unit_id'))->where('month', date('n'))->where('year', date('Y'))->count() }}
+                    </p>
                 </div>
                 <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
                 </div>
             </div>
-        </div>
+        </x-ui.card>
     </div>
 
-    <div class="glass-card p-6">
-        <h3 class="text-lg font-semibold mb-4" style="color: var(--text-primary);">Quick Actions</h3>
+    <!-- Quick Actions -->
+    <x-ui.card class="animate-fade-up delay-300">
+        <x-slot:header>
+            <h3 class="text-lg font-semibold text-[hsl(var(--foreground))]">Aksi Cepat</h3>
+        </x-slot:header>
+        
         <div class="flex flex-wrap gap-3">
-            <a href="{{ route('payrolls.create') }}" class="btn-primary">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                Process Monthly Payroll
+            <a href="{{ route('payrolls.create') }}">
+                <x-ui.button>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
+                    Proses Gaji Bulanan
+                </x-ui.button>
             </a>
-            <a href="{{ route('teachers.create') }}" class="btn-secondary">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
-                Add New Teacher
+            <a href="{{ route('teachers.create') }}">
+                <x-ui.button variant="secondary">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+                    </svg>
+                    Tambah Guru Baru
+                </x-ui.button>
             </a>
-            <a href="{{ route('academic-years.create') }}" class="btn-secondary">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                New Academic Year
+            <a href="{{ route('academic-years.create') }}">
+                <x-ui.button variant="outline">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                    Tambah Tahun Ajaran
+                </x-ui.button>
             </a>
         </div>
-    </div>
+    </x-ui.card>
 @endsection

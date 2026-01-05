@@ -1,31 +1,30 @@
 <x-guest-layout>
-    <div class="mb-4 text-sm text-gray-600">
-        {{ __('Thanks for signing up! Before getting started, could you verify your email address by clicking on the link we just emailed to you? If you didn\'t receive the email, we will gladly send you another.') }}
+    <div class="text-center mb-6">
+        <h2 class="text-xl font-semibold text-[hsl(var(--foreground))]">Verifikasi Email</h2>
+        <p class="text-sm text-[hsl(var(--muted-foreground))] mt-2">
+            Terima kasih telah mendaftar! Sebelum memulai, silakan verifikasi alamat email Anda dengan mengklik link yang kami kirimkan. Jika tidak menerima email, kami akan dengan senang hati mengirimkan yang baru.
+        </p>
     </div>
 
     @if (session('status') == 'verification-link-sent')
-        <div class="mb-4 font-medium text-sm text-green-600">
-            {{ __('A new verification link has been sent to the email address you provided during registration.') }}
-        </div>
+        <x-ui.alert type="success" class="mb-4">
+            Link verifikasi baru telah dikirim ke alamat email Anda.
+        </x-ui.alert>
     @endif
 
-    <div class="mt-4 flex items-center justify-between">
+    <div class="flex items-center justify-between gap-4">
         <form method="POST" action="{{ route('verification.send') }}">
             @csrf
-
-            <div>
-                <x-primary-button>
-                    {{ __('Resend Verification Email') }}
-                </x-primary-button>
-            </div>
+            <x-ui.button type="submit">
+                Kirim Ulang Email
+            </x-ui.button>
         </form>
 
         <form method="POST" action="{{ route('logout') }}">
             @csrf
-
-            <button type="submit" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                {{ __('Log Out') }}
-            </button>
+            <x-ui.button type="submit" variant="ghost">
+                Logout
+            </x-ui.button>
         </form>
     </div>
 </x-guest-layout>

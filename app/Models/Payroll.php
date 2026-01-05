@@ -41,4 +41,9 @@ class Payroll extends Model
     {
         return $this->belongsTo(Unit::class);
     }
+
+    public function batch()
+    {
+        return $this->belongsTo(PayrollBatch::class, 'payroll_batch_id');
+    }
 }

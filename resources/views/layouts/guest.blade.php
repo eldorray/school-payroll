@@ -7,135 +7,33 @@
 
         <title>{{ config('app.name', 'School Payroll') }}</title>
 
-        <!-- Google Fonts: Inter -->
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+        <!-- Fonts -->
+        <link rel="preconnect" href="https://fonts.bunny.net">
+        <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
-        
-        <style>
-            * {
-                font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            }
-            
-            body {
-                background: linear-gradient(135deg, #ccd4fa 0%, #e1e7ff 100%);
-                background-attachment: fixed;
-                min-height: 100vh;
-            }
-            
-            .login-card {
-                background: rgba(255, 255, 255, 0.85);
-                backdrop-filter: blur(20px);
-                -webkit-backdrop-filter: blur(20px);
-                border: 1px solid rgba(255, 255, 255, 0.3);
-                border-radius: 20px;
-                box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
-            }
-            
-            .login-input {
-                background: rgba(255, 255, 255, 0.9);
-                border: 1px solid rgba(0, 0, 0, 0.1);
-                border-radius: 12px;
-                padding: 14px 16px;
-                font-size: 15px;
-                width: 100%;
-                transition: all 0.2s ease;
-            }
-            
-            .login-input:focus {
-                outline: none;
-                border-color: #0071e3;
-                box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.15);
-                background: white;
-            }
-            
-            .login-label {
-                font-size: 13px;
-                font-weight: 600;
-                color: #1d1d1f;
-                margin-bottom: 6px;
-                display: block;
-            }
-            
-            .login-btn {
-                background: linear-gradient(135deg, #0071e3 0%, #0077ed 100%);
-                color: white;
-                padding: 14px 28px;
-                border-radius: 12px;
-                font-weight: 600;
-                font-size: 15px;
-                border: none;
-                cursor: pointer;
-                transition: all 0.2s ease;
-                width: 100%;
-            }
-            
-            .login-btn:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 10px 20px rgba(0, 113, 227, 0.3);
-            }
-            
-            .login-link {
-                color: #0071e3;
-                font-size: 13px;
-                text-decoration: none;
-                font-weight: 500;
-            }
-            
-            .login-link:hover {
-                text-decoration: underline;
-            }
-            
-            .checkbox-modern {
-                width: 18px;
-                height: 18px;
-                border-radius: 5px;
-                accent-color: #0071e3;
-            }
-            
-            .logo-container {
-                width: 80px;
-                height: 80px;
-                background: rgba(255, 255, 255, 0.9);
-                border-radius: 20px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-                margin-bottom: 24px;
-            }
-            
-            .error-text {
-                color: #ef4444;
-                font-size: 12px;
-                margin-top: 6px;
-            }
-        </style>
     </head>
-    <body>
-        <div class="min-h-screen flex flex-col justify-center items-center p-6">
+    <body class="font-sans antialiased">
+        <div class="min-h-screen gradient-mesh flex flex-col justify-center items-center p-6">
             <!-- Logo -->
-            <div class="logo-container">
-                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#0071e3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="12" y1="1" x2="12" y2="23"/>
-                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+            <div class="glass w-20 h-20 rounded-2xl flex items-center justify-center mb-6 animate-fade-up">
+                <svg class="w-10 h-10 text-[hsl(var(--primary))]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
             </div>
             
             <!-- Title -->
-            <h1 style="font-size: 28px; font-weight: 700; color: white; margin-bottom: 8px; text-shadow: 0 2px 10px rgba(0,0,0,0.2);">School Payroll</h1>
-            <p style="font-size: 14px; color: rgba(255,255,255,0.8); margin-bottom: 32px;">Management System</p>
+            <h1 class="text-3xl font-bold text-[hsl(var(--foreground))] mb-2 animate-fade-up delay-100">School Payroll</h1>
+            <p class="text-sm text-[hsl(var(--muted-foreground))] mb-8 animate-fade-up delay-200">Management System</p>
 
             <!-- Card -->
-            <div class="login-card w-full sm:max-w-md px-8 py-10">
+            <div class="card glass w-full sm:max-w-md px-8 py-10 animate-scale-in delay-300">
                 {{ $slot }}
             </div>
             
             <!-- Footer -->
-            <p style="font-size: 12px; color: rgba(0, 0, 0, 0.6); margin-top: 32px;">
+            <p class="text-xs text-[hsl(var(--muted-foreground))] mt-8 animate-fade-up delay-400">
                 &copy; {{ date('Y') }} School Payroll. Design by elfahmie.
             </p>
         </div>
