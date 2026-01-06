@@ -86,7 +86,7 @@
                                 <span class="text-xs text-[hsl(var(--muted-foreground))]">(Auto)</span>
                             </td>
                             <td class="text-center">
-                                <input type="number" name="attendance[{{ $teacher->id }}][deductions][transport_deduction]" class="input w-20 text-right text-[hsl(var(--destructive))]" min="0" placeholder="0">
+                                <input type="number" name="attendance[{{ $teacher->id }}][deductions][late_count]" class="input w-16 text-center text-[hsl(var(--destructive))]" min="0" placeholder="0" title="Jumlah keterlambatan">
                             </td>
                             <td class="text-center">
                                 <input type="number" name="attendance[{{ $teacher->id }}][deductions][other_deduction]" class="input w-20 text-right text-[hsl(var(--destructive))]" min="0" placeholder="0">

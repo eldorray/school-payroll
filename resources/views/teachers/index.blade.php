@@ -39,6 +39,7 @@
                         <th>Tanggal Bergabung</th>
                         <th>Masa Kerja</th>
                         <th>Status Gaji</th>
+                        <th>Tahfidz</th>
                         <th class="text-right">Aksi</th>
                     </tr>
                 </thead>
@@ -69,6 +70,20 @@
                                 @else
                                     <x-ui.badge variant="secondary">Tidak Digaji</x-ui.badge>
                                 @endif
+                            </td>
+                            <td>
+                                <form action="{{ route('teachers.toggle-tahfidz', $teacher) }}" method="POST" class="inline-block">
+                                    @csrf
+                                    @if($teacher->is_tahfidz)
+                                        <x-ui.button type="submit" size="sm" title="Jadikan guru biasa">
+                                            <x-ui.badge variant="default">Tahfidz</x-ui.badge>
+                                        </x-ui.button>
+                                    @else
+                                        <x-ui.button type="submit" variant="outline" size="sm" title="Jadikan guru tahfidz">
+                                            <span class="text-xs text-[hsl(var(--muted-foreground))]">-</span>
+                                        </x-ui.button>
+                                    @endif
+                                </form>
                             </td>
                             <td>
                                 <div class="flex items-center justify-end gap-2">

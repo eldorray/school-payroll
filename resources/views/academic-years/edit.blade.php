@@ -45,7 +45,7 @@
             <hr class="my-6 border-[hsl(var(--border))]">
             <h3 class="text-lg font-semibold text-[hsl(var(--foreground))] mb-4">Pengaturan Tarif Gaji</h3>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <x-ui.input 
                     type="number"
                     name="teaching_rate" 
@@ -68,6 +68,14 @@
                     label="Tarif Masa Kerja / Tahun"
                     :value="$academicYear->payrollSettings->masa_kerja_rate_per_year ?? 0"
                     :error="$errors->first('masa_kerja_rate')"
+                    required 
+                />
+                <x-ui.input 
+                    type="number"
+                    name="late_deduction_rate" 
+                    label="Tarif Potongan Terlambat"
+                    :value="$academicYear->payrollSettings->late_deduction_rate ?? 0"
+                    :error="$errors->first('late_deduction_rate')"
                     required 
                 />
             </div>

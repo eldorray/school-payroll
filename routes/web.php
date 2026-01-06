@@ -4,6 +4,7 @@ use App\Http\Controllers\AcademicYearController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PayrollController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TahfidzPayrollController;
 use App\Http\Controllers\TeacherController;
 use Illuminate\Support\Facades\Route;
 
@@ -26,6 +27,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('teachers/import/template', [TeacherController::class, 'downloadTemplate'])->name('teachers.import.template');
     Route::post('teachers/import', [TeacherController::class, 'import'])->name('teachers.import.store');
     Route::post('teachers/{teacher}/toggle-active', [TeacherController::class, 'toggleActive'])->name('teachers.toggle-active');
+    Route::post('teachers/{teacher}/toggle-tahfidz', [TeacherController::class, 'toggleTahfidz'])->name('teachers.toggle-tahfidz');
     Route::resource('teachers', TeacherController::class);
 
     // Payrolls - Custom routes BEFORE resource to avoid conflicts
@@ -61,6 +63,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('extracurricular-payrolls', [\App\Http\Controllers\ExtracurricularPayrollController::class, 'store'])->name('extracurricular-payrolls.store');
     Route::get('extracurricular-payrolls/{extracurricularPayroll}', [\App\Http\Controllers\ExtracurricularPayrollController::class, 'show'])->name('extracurricular-payrolls.show');
     Route::delete('extracurricular-payrolls/{extracurricularPayroll}', [\App\Http\Controllers\ExtracurricularPayrollController::class, 'destroy'])->name('extracurricular-payrolls.destroy');
+
+    // Tahfidz Payrolls (hanya untuk MI Daarul Hikmah)
+    Route::get('tahfidz-payrolls/report', [TahfidzPayrollController::class, 'report'])->name('tahfidz-payrolls.report');
+    Route::get('tahfidz-payrolls/print-all', [TahfidzPayrollController::class, 'printAll'])->name('tahfidz-payrolls.print_all');
+    Route::get('tahfidz-payrolls', [TahfidzPayrollController::class, 'index'])->name('tahfidz-payrolls.index');
+    Route::get('tahfidz-payrolls/create', [TahfidzPayrollController::class, 'create'])->name('tahfidz-payrolls.create');
+    Route::post('tahfidz-payrolls', [TahfidzPayrollController::class, 'store'])->name('tahfidz-payrolls.store');
+    Route::get('tahfidz-payrolls/{payroll}', [TahfidzPayrollController::class, 'show'])->name('tahfidz-payrolls.show');
+    Route::delete('tahfidz-payrolls/batch/{batch}', [TahfidzPayrollController::class, 'destroyBatch'])->name('tahfidz-payrolls.batch.destroy');
+
+    // Backup & Restore
+    Route::get('backups', [\App\Http\Controllers\BackupController::class, 'index'])->name('backups.index');
+    Route::post('backups/backup', [\App\Http\Controllers\BackupController::class, 'backup'])->name('backups.backup');
+    Route::get('backups/download/{filename}', [\App\Http\Controllers\BackupController::class, 'download'])->name('backups.download');
+    Route::post('backups/restore', [\App\Http\Controllers\BackupController::class, 'restore'])->name('backups.restore');
+    Route::delete('backups/{filename}', [\App\Http\Controllers\BackupController::class, 'delete'])->name('backups.delete');
 });
 
 require __DIR__.'/auth.php';

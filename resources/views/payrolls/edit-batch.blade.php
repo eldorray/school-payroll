@@ -72,8 +72,12 @@
                             <td class="text-center bg-[hsl(var(--secondary))]">
                                 <span class="text-xs text-[hsl(var(--muted-foreground))]">(Auto)</span>
                             </td>
+                            @php
+                                $details = $payroll->details ?? [];
+                                $lateCount = $details['breakdown']['deductions']['late_count'] ?? 0;
+                            @endphp
                             <td class="text-center">
-                                <input type="number" name="attendance[{{ $payroll->id }}][deductions][transport_deduction]" value="{{ old("attendance.{$payroll->id}.deductions.transport_deduction", $payroll->transport_allowance_deduction_amount) }}" class="input w-20 text-right text-[hsl(var(--destructive))]" min="0">
+                                <input type="number" name="attendance[{{ $payroll->id }}][deductions][late_count]" value="{{ old("attendance.{$payroll->id}.deductions.late_count", $lateCount) }}" class="input w-16 text-center text-[hsl(var(--destructive))]" min="0" title="Jumlah keterlambatan">
                             </td>
                             <td class="text-center">
                                 <input type="number" name="attendance[{{ $payroll->id }}][deductions][other_deduction]" value="{{ old("attendance.{$payroll->id}.deductions.other_deduction", $payroll->other_deduction_amount) }}" class="input w-20 text-right text-[hsl(var(--destructive))]" min="0">

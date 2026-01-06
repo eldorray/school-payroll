@@ -13,6 +13,7 @@ class Payroll extends Model
 
     protected $casts = [
         'details' => 'array',
+        'is_tahfidz' => 'boolean',
     ];
 
     // Helpers for specific deduction logic if needed

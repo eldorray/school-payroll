@@ -41,9 +41,10 @@ class PayrollController extends Controller
         }
 
         $unitId = session('unit_id');
-        // Get only active teachers for selected unit (exclude those marked as inactive)
+        // Get only active NON-Tahfidz teachers for selected unit
         $teachers = Teacher::where('unit_id', $unitId)
             ->where('is_active', true)
+            ->where('is_tahfidz', false)
             ->orderBy('name')
             ->get();
         
@@ -96,7 +97,9 @@ class PayrollController extends Controller
                 // Deductions from input
                 $deductionsInput = $data['deductions'] ?? [];
                 $bpjs = $annualBpjs;
-                $transportDed = $deductionsInput['transport_deduction'] ?? 0;
+                $lateCount = $deductionsInput['late_count'] ?? 0;
+                $lateRate = $settings->late_deduction_rate ?? 0;
+                $lateDed = $lateCount * $lateRate;
                 $incentiveDed = $deductionsInput['incentive_deduction'] ?? 0;
                 $otherDed = $deductionsInput['other_deduction'] ?? 0;
 
@@ -118,7 +121,7 @@ class PayrollController extends Controller
 
                 // 4. Gross & Net
                 $grossSalary = $teachingSalary + $transportSalary + $tenureSalary + $allowanceTotal;
-                $totalDeductions = $bpjs + $transportDed + $incentiveDed + $otherDed;
+                $totalDeductions = $bpjs + $lateDed + $incentiveDed + $otherDed;
                 $netSalary = $grossSalary - $totalDeductions;
 
                 // Snapshot details
@@ -126,6 +129,7 @@ class PayrollController extends Controller
                     'teaching_rate' => $settings->teaching_rate_per_hour,
                     'transport_rate' => $settings->transport_rate_per_visit,
                     'masa_kerja_rate' => $settings->masa_kerja_rate_per_year,
+                    'late_deduction_rate' => $lateRate,
                     'tenure_years' => $tenureYears,
                     'allowances' => $allowances->pluck('amount', 'allowance_name')->toArray(),
                     'breakdown' => [
@@ -135,7 +139,8 @@ class PayrollController extends Controller
                         'allowances' => $allowanceTotal,
                         'deductions' => [
                             'bpjs' => $bpjs,
-                            'transport' => $transportDed,
+                            'late_count' => $lateCount,
+                            'late' => $lateDed,
                             'incentive' => $incentiveDed,
                             'other' => $otherDed
                         ]
@@ -154,7 +159,7 @@ class PayrollController extends Controller
                     'attendance_days' => $days,
                     'total_salary' => $netSalary,
                     'bpjs_amount' => $bpjs,
-                    'transport_allowance_deduction_amount' => $transportDed,
+                    'transport_allowance_deduction_amount' => $lateDed,
                     'incentive_deduction_amount' => $incentiveDed,
                     'other_deduction_amount' => $otherDed,
                     'details' => $details,
@@ -224,7 +229,9 @@ class PayrollController extends Controller
 
                 $deductionsInput = $data['deductions'] ?? [];
                 $bpjs = $annualBpjs;
-                $transportDed = $deductionsInput['transport_deduction'] ?? 0;
+                $lateCount = $deductionsInput['late_count'] ?? 0;
+                $lateRate = $settings->late_deduction_rate ?? 0;
+                $lateDed = $lateCount * $lateRate;
                 $incentiveDed = $deductionsInput['incentive_deduction'] ?? 0;
                 $otherDed = $deductionsInput['other_deduction'] ?? 0;
 
@@ -242,13 +249,14 @@ class PayrollController extends Controller
                 $allowanceTotal = $allowances->sum('amount');
 
                 $grossSalary = $teachingSalary + $transportSalary + $tenureSalary + $allowanceTotal;
-                $totalDeductions = $bpjs + $transportDed + $incentiveDed + $otherDed;
+                $totalDeductions = $bpjs + $lateDed + $incentiveDed + $otherDed;
                 $netSalary = $grossSalary - $totalDeductions;
 
                 $details = [
                     'teaching_rate' => $settings->teaching_rate_per_hour,
                     'transport_rate' => $settings->transport_rate_per_visit,
                     'masa_kerja_rate' => $settings->masa_kerja_rate_per_year,
+                    'late_deduction_rate' => $lateRate,
                     'tenure_years' => $tenureYears,
                     'allowances' => $allowances->pluck('amount', 'allowance_name')->toArray(),
                     'breakdown' => [
@@ -258,7 +266,8 @@ class PayrollController extends Controller
                         'allowances' => $allowanceTotal,
                         'deductions' => [
                             'bpjs' => $bpjs,
-                            'transport' => $transportDed,
+                            'late_count' => $lateCount,
+                            'late' => $lateDed,
                             'incentive' => $incentiveDed,
                             'other' => $otherDed
                         ]
@@ -269,7 +278,7 @@ class PayrollController extends Controller
                     'attendance_days' => $days,
                     'total_salary' => $netSalary,
                     'bpjs_amount' => $bpjs,
-                    'transport_allowance_deduction_amount' => $transportDed,
+                    'transport_allowance_deduction_amount' => $lateDed,
                     'incentive_deduction_amount' => $incentiveDed,
                     'other_deduction_amount' => $otherDed,
                     'details' => $details,

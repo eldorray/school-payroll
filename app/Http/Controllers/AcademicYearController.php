@@ -29,6 +29,7 @@ class AcademicYearController extends Controller
             'teaching_rate' => 'required|numeric|min:0',
             'transport_rate' => 'required|numeric|min:0',
             'masa_kerja_rate' => 'required|numeric|min:0',
+            'late_deduction_rate' => 'nullable|numeric|min:0',
         ]);
 
         DB::transaction(function () use ($validated) {
@@ -45,6 +46,7 @@ class AcademicYearController extends Controller
                 'teaching_rate_per_hour' => $validated['teaching_rate'],
                 'transport_rate_per_visit' => $validated['transport_rate'],
                 'masa_kerja_rate_per_year' => $validated['masa_kerja_rate'],
+                'late_deduction_rate' => $validated['late_deduction_rate'] ?? 0,
             ]);
         });
 
@@ -71,6 +73,7 @@ class AcademicYearController extends Controller
             'teaching_rate' => 'required|numeric|min:0',
             'transport_rate' => 'required|numeric|min:0',
             'masa_kerja_rate' => 'required|numeric|min:0',
+            'late_deduction_rate' => 'nullable|numeric|min:0',
         ]);
 
         DB::transaction(function () use ($request, $academicYear, $validated) {
@@ -86,6 +89,7 @@ class AcademicYearController extends Controller
                     'teaching_rate_per_hour' => $validated['teaching_rate'],
                     'transport_rate_per_visit' => $validated['transport_rate'],
                     'masa_kerja_rate_per_year' => $validated['masa_kerja_rate'],
+                    'late_deduction_rate' => $validated['late_deduction_rate'] ?? 0,
                 ]
             );
         });

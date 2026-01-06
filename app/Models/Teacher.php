@@ -14,6 +14,7 @@ class Teacher extends Model
     protected $casts = [
         'joined_at' => 'date',
         'is_active' => 'boolean',
+        'is_tahfidz' => 'boolean',
     ];
 
     public function allowances()

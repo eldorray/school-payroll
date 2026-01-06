@@ -186,6 +186,18 @@ class TeacherController extends Controller
     }
 
     /**
+     * Toggle teacher tahfidz status
+     */
+    public function toggleTahfidz(Teacher $teacher)
+    {
+        $teacher->update(['is_tahfidz' => !$teacher->is_tahfidz]);
+        
+        $status = $teacher->is_tahfidz ? 'dijadikan guru tahfidz' : 'diubah menjadi guru biasa';
+        return redirect()->route('teachers.index')
+            ->with('success', "Guru {$teacher->name} berhasil {$status}.");
+    }
+
+    /**
      * Show the import form
      */
     public function showImportForm()

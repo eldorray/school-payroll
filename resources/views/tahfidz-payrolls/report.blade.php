@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>DAFTAR PENERIMA HONOR PENDIDIK DAN TENAGA KEPENDIDIKAN</title>
+    <title>DAFTAR PENERIMA HONOR GURU TAHFIDZ</title>
     <style>
         @page { size: landscape; margin: 10mm; }
         body { font-family: Arial, sans-serif; font-size: 10px; padding: 0; margin: 0; }
@@ -22,9 +22,25 @@
         <button onclick="window.print()" style="padding: 5px 10px; cursor: pointer;">Print Report / Save as PDF</button>
     </div>
 
-    @php $currentUnit = \App\Models\Unit::find(session('unit_id')); @endphp
+    @php 
+        $currentUnit = \App\Models\Unit::find(session('unit_id'));
+        
+        // Collect all unique allowance names from payrolls for dynamic columns
+        $allAllowanceNames = [];
+        foreach($payrolls as $p) {
+            $allowancesMap = $p->details['allowances'] ?? [];
+            foreach($allowancesMap as $name => $amount) {
+                if ($amount > 0 && !in_array($name, $allAllowanceNames)) {
+                    $allAllowanceNames[] = $name;
+                }
+            }
+        }
+        sort($allAllowanceNames);
+        $tunjanganCount = count($allAllowanceNames);
+    @endphp
+    
     <div class="header">
-        <div>DAFTAR PENERIMA HONOR PENDIDIK DAN TENAGA KEPENDIDIKAN</div>
+        <div>DAFTAR PENERIMA HONOR GURU TAHFIDZ</div>
         <div>{{ $currentUnit ? strtoupper($currentUnit->name) : 'SEKOLAH' }}</div>
         <div>TAHUN PELAJARAN {{ $activeYear ? $activeYear->name : 'N/A' }}</div>
     </div>
@@ -42,8 +58,10 @@
                 <th colspan="2">Jam Pelajaran<br>(Rp {{ number_format($activeYear->payrollSettings->teaching_rate_per_hour ?? 0, 0, ',', '.') }})</th>
                 <th colspan="2">Transport<br>(Rp {{ number_format($activeYear->payrollSettings->transport_rate_per_visit ?? 0, 0, ',', '.') }})</th>
                 <th colspan="2">Jml Masa Kerja<br>(Rp {{ number_format($activeYear->payrollSettings->masa_kerja_rate_per_year ?? 0, 0, ',', '.') }})</th>
-                <th colspan="6">TUNJANGAN</th>
-                <th rowspan="2">Jumlah</th> <!-- Gross -->
+                @if($tunjanganCount > 0)
+                <th colspan="{{ $tunjanganCount }}">TUNJANGAN</th>
+                @endif
+                <th rowspan="2">Jumlah</th>
                 <th colspan="4">POTONGAN</th>
                 <th rowspan="2">Jumlah Di Terima</th>
                 <th rowspan="2" width="50">Paraf</th>
@@ -56,15 +74,12 @@
                 <th>Jml Hadir</th>
                 <th>Jumlah</th>
                 <!-- Masa Kerja -->
-                <th>Masa Kerja</th> <!-- Years -->
+                <th>Masa Kerja</th>
                 <th>Jumlah</th>
-                <!-- Tunjangan -->
-                <th>Media Center</th>
-                <th>Wakbid</th>
-                <th>Wakel</th>
-                <th>OPS</th>
-                <th>Bend/TU</th>
-                <th>Piket</th>
+                <!-- Tunjangan - Dynamic -->
+                @foreach($allAllowanceNames as $tunjanganName)
+                    <th>{{ $tunjanganName }}</th>
+                @endforeach
                 <!-- Potongan -->
                 <th>Insentif</th>
                 <th>BPJS</th>
@@ -76,15 +91,15 @@
             @php 
                 $grandTotalGross = 0;
                 $grandTotalNet = 0;
-                // Accumulators
                 $sumJam = 0; $sumJamRp = 0;
                 $sumTrspDays = 0; $sumTrspRp = 0;
                 $sumTenureYears = 0; $sumTenureRp = 0;
                 
-                $sumAllowances = [
-                    'Media Center' => 0, 'Wakbid' => 0, 'Wakel' => 0, 
-                    'OPS' => 0, 'Bend/TU' => 0, 'Piket' => 0
-                ];
+                // Dynamic allowance sums
+                $sumAllowances = [];
+                foreach($allAllowanceNames as $name) {
+                    $sumAllowances[$name] = 0;
+                }
                 
                 $sumDedIncentive = 0;
                 $sumDedBpjs = 0;
@@ -109,32 +124,7 @@
                     $tenureYears = $d['tenure_years'] ?? 0;
                     $tenurePay = $breakdown['tenure'] ?? 0;
 
-                    // Allowances Smart Mapping
-                    $mediaCenter = 0; $wakbid = 0; $wakel = 0; $ops = 0; $bendTu = 0; $piket = 0;
-                    
-                    foreach ($allowancesMap as $name => $amount) {
-                         if ($amount <= 0) continue;
-                         $n = strtolower($name);
-                         
-                         if (str_contains($n, 'media center')) {
-                             $mediaCenter += $amount;
-                         } elseif (str_contains($n, 'wakbid') || str_contains($n, 'wakil') || str_contains($n, 'waka') || str_contains($n, 'kurikulum') || str_contains($n, 'kesiswaan') || str_contains($n, 'humas') || str_contains($n, 'sarpras')) {
-                             $wakbid += $amount;
-                         } elseif (str_contains($n, 'wakel') || str_contains($n, 'wali kelas')) {
-                             $wakel += $amount;
-                         } elseif (str_contains($n, 'ops') || str_contains($n, 'operator')) {
-                             $ops += $amount;
-                         } elseif (str_contains($n, 'bend') || str_contains($n, 'tu') || str_contains($n, 'tata usaha')) {
-                             $bendTu += $amount;
-                         } elseif (str_contains($n, 'piket')) {
-                             $piket += $amount;
-                         }
-                    }
-                    
-                    // Gross for "Jumlah" column (Teaching + Transport + Tenure + All Allowances)
-                    // Note: array_sum($allowancesMap) captures ALL allowances, even those not mapped to columns.
-                    // This ensures the Total is always correct.
-
+                    // Gross
                     $gross = $teachingPay + $transportPay + $tenurePay + array_sum($allowancesMap);
 
                     // Deductions
@@ -142,9 +132,6 @@
                     $bpjs = $deductions['bpjs'] ?? 0;
                     $terlambat = $deductions['late'] ?? $deductions['transport'] ?? 0;
                     $lainnya = $deductions['other'] ?? 0;
-                    
-                    // Note on 'Terlambat': Image has "Terlambat" under Potongan.
-                    // Also "Info" from user: "unpaid_leave_amount (Potongan Terlambat)".
                     
                     $totalDed = $insentif + $bpjs + $terlambat + $lainnya;
                     $net = $gross - $totalDed;
@@ -157,12 +144,9 @@
                     $sumTrspDays += $days; $sumTrspRp += $transportPay;
                     $sumTenureYears += $tenureYears; $sumTenureRp += $tenurePay;
                     
-                    $sumAllowances['Media Center'] += $mediaCenter;
-                    $sumAllowances['Wakbid'] += $wakbid;
-                    $sumAllowances['Wakel'] += $wakel;
-                    $sumAllowances['OPS'] += $ops;
-                    $sumAllowances['Bend/TU'] += $bendTu;
-                    $sumAllowances['Piket'] += $piket;
+                    foreach($allAllowanceNames as $name) {
+                        $sumAllowances[$name] += $allowancesMap[$name] ?? 0;
+                    }
 
                     $sumDedIncentive += $insentif;
                     $sumDedBpjs += $bpjs;
@@ -186,13 +170,10 @@
                     <td class="text-center">{{ $tenureYears > 0 ? number_format($tenureYears, 0) : '' }}</td>
                     <td class="text-right">{{ $tenurePay > 0 ? number_format($tenurePay) : '' }}</td>
                     
-                    <!-- Allowances -->
-                    <td class="text-right">{{ $mediaCenter > 0 ? number_format($mediaCenter) : '' }}</td>
-                    <td class="text-right">{{ $wakbid > 0 ? number_format($wakbid) : '' }}</td>
-                    <td class="text-right">{{ $wakel > 0 ? number_format($wakel) : '' }}</td>
-                    <td class="text-right">{{ $ops > 0 ? number_format($ops) : '' }}</td>
-                    <td class="text-right">{{ $bendTu > 0 ? number_format($bendTu) : '' }}</td>
-                    <td class="text-right">{{ $piket > 0 ? number_format($piket) : '' }}</td>
+                    <!-- Allowances - Dynamic -->
+                    @foreach($allAllowanceNames as $name)
+                        <td class="text-right">{{ ($allowancesMap[$name] ?? 0) > 0 ? number_format($allowancesMap[$name]) : '' }}</td>
+                    @endforeach
                     
                     <!-- Gross -->
                     <td class="text-right bg-gray"><strong>{{ number_format($gross) }}</strong></td>
@@ -223,13 +204,10 @@
                 <td class="text-center">{{ $sumTenureYears }}</td>
                 <td class="text-right">{{ number_format($sumTenureRp) }}</td>
                 
-                <!-- Allowances -->
-                <td class="text-right">{{ number_format($sumAllowances['Media Center']) }}</td>
-                <td class="text-right">{{ number_format($sumAllowances['Wakbid']) }}</td>
-                <td class="text-right">{{ number_format($sumAllowances['Wakel']) }}</td>
-                <td class="text-right">{{ number_format($sumAllowances['OPS']) }}</td>
-                <td class="text-right">{{ number_format($sumAllowances['Bend/TU']) }}</td>
-                <td class="text-right">{{ number_format($sumAllowances['Piket']) }}</td>
+                <!-- Allowances - Dynamic -->
+                @foreach($allAllowanceNames as $name)
+                    <td class="text-right">{{ number_format($sumAllowances[$name]) }}</td>
+                @endforeach
                 
                 <!-- Gross -->
                 <td class="text-right">{{ number_format($grandTotalGross) }}</td>
