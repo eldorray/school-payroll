@@ -19,7 +19,15 @@ class AcademicYear extends Model
 
     public function payrollSettings()
     {
-        return $this->hasOne(PayrollSetting::class);
+        return $this->hasMany(PayrollSetting::class);
+    }
+
+    /**
+     * Get payroll settings for a specific unit
+     */
+    public function getSettingsForUnit($unitId)
+    {
+        return $this->payrollSettings()->where('unit_id', $unitId)->first();
     }
 
     public function teacherAllowances()

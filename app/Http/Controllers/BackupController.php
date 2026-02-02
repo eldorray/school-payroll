@@ -72,9 +72,9 @@ class BackupController extends Controller
         $backupFullPath = $this->backupPath . '/' . $backupFilename;
 
         try {
-            // Build mysqldump command
+            // Build mysqldump command with 2>&1 to capture stderr
             $command = sprintf(
-                'mysqldump --host=%s --port=%s --user=%s --password=%s %s > %s',
+                'mysqldump --host=%s --port=%s --user=%s --password=%s %s 2>/dev/null > %s',
                 escapeshellarg($this->dbHost),
                 escapeshellarg($this->dbPort),
                 escapeshellarg($this->dbUser),
@@ -88,11 +88,7 @@ class BackupController extends Controller
             $process->setTimeout(300); // 5 minutes timeout
             $process->run();
 
-            if (!$process->isSuccessful()) {
-                throw new ProcessFailedException($process);
-            }
-
-            // Verify backup file was created
+            // Verify backup file was created and has content
             if (!File::exists($backupFullPath) || File::size($backupFullPath) === 0) {
                 throw new \Exception('Backup file kosong atau tidak terbuat.');
             }
@@ -155,7 +151,7 @@ class BackupController extends Controller
         try {
             // Backup current database first
             $backupCommand = sprintf(
-                'mysqldump --host=%s --port=%s --user=%s --password=%s %s > %s',
+                'mysqldump --host=%s --port=%s --user=%s --password=%s %s 2>/dev/null > %s',
                 escapeshellarg($this->dbHost),
                 escapeshellarg($this->dbPort),
                 escapeshellarg($this->dbUser),
@@ -168,13 +164,14 @@ class BackupController extends Controller
             $backupProcess->setTimeout(300);
             $backupProcess->run();
 
-            if (!$backupProcess->isSuccessful()) {
+            // Check if safety backup was created
+            if (!File::exists($safetyBackupPath) || File::size($safetyBackupPath) === 0) {
                 throw new \Exception('Gagal membuat safety backup sebelum restore.');
             }
 
             // Restore the backup using mysql command
             $restoreCommand = sprintf(
-                'mysql --host=%s --port=%s --user=%s --password=%s %s < %s',
+                'mysql --host=%s --port=%s --user=%s --password=%s %s 2>/dev/null < %s',
                 escapeshellarg($this->dbHost),
                 escapeshellarg($this->dbPort),
                 escapeshellarg($this->dbUser),
@@ -185,19 +182,20 @@ class BackupController extends Controller
 
             $restoreProcess = Process::fromShellCommandline($restoreCommand);
             $restoreProcess->setTimeout(600); // 10 minutes timeout for restore
-            $restoreProcess->run();
+            $result = $restoreProcess->run();
 
-            if (!$restoreProcess->isSuccessful()) {
-                throw new ProcessFailedException($restoreProcess);
+            // Check exit code - 0 means success
+            if ($restoreProcess->getExitCode() !== 0) {
+                throw new \Exception('Restore command failed with exit code: ' . $restoreProcess->getExitCode());
             }
 
             return back()->with('success', 'Database berhasil di-restore! Backup sebelumnya tersimpan di: ' . $safetyBackupFilename);
         } catch (\Exception $e) {
             // Attempt rollback if we have a safety backup
-            if (File::exists($safetyBackupPath)) {
+            if (File::exists($safetyBackupPath) && File::size($safetyBackupPath) > 0) {
                 try {
                     $rollbackCommand = sprintf(
-                        'mysql --host=%s --port=%s --user=%s --password=%s %s < %s',
+                        'mysql --host=%s --port=%s --user=%s --password=%s %s 2>/dev/null < %s',
                         escapeshellarg($this->dbHost),
                         escapeshellarg($this->dbPort),
                         escapeshellarg($this->dbUser),

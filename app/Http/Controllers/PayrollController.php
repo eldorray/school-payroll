@@ -68,7 +68,8 @@ class PayrollController extends Controller
             return back()->with('error', 'No active academic year.');
         }
 
-        $settings = $activeYear->payrollSettings;
+        $unitId = session('unit_id');
+        $settings = $activeYear->getSettingsForUnit($unitId);
         if (!$settings) {
             return back()->with('error', 'Payroll settings not found for this year.');
         }
@@ -194,7 +195,8 @@ class PayrollController extends Controller
     {
         $batch->load(['payrolls.teacher', 'academicYear']);
         $activeYear = $batch->academicYear;
-        $settings = $activeYear->payrollSettings;
+        $unitId = session('unit_id');
+        $settings = $activeYear->getSettingsForUnit($unitId);
         
         return view('payrolls.edit-batch', compact('batch', 'activeYear', 'settings'));
     }
@@ -210,7 +212,8 @@ class PayrollController extends Controller
         ]);
 
         $activeYear = $batch->academicYear;
-        $settings = $activeYear->payrollSettings;
+        $unitId = session('unit_id');
+        $settings = $activeYear->getSettingsForUnit($unitId);
 
         DB::transaction(function () use ($validated, $batch, $activeYear, $settings) {
             // Update batch name

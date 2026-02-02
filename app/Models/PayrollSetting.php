@@ -15,4 +15,9 @@ class PayrollSetting extends Model
     {
         return $this->belongsTo(AcademicYear::class);
     }
+
+    public function unit()
+    {
+        return $this->belongsTo(Unit::class);
+    }
 }

@@ -72,7 +72,8 @@ class TahfidzPayrollController extends Controller
             return back()->with('error', 'Tidak ada tahun ajaran aktif.');
         }
 
-        $settings = $activeYear->payrollSettings;
+        $unitId = session('unit_id');
+        $settings = $activeYear->getSettingsForUnit($unitId);
         if (!$settings) {
             return back()->with('error', 'Pengaturan tarif belum diatur untuk tahun ini.');
         }

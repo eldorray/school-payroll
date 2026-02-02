@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\AcademicYear;
 use App\Models\PayrollSetting;
+use App\Models\Unit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -17,40 +18,53 @@ class AcademicYearController extends Controller
 
     public function create()
     {
-        return view('academic-years.create');
+        $units = Unit::all();
+        return view('academic-years.create', compact('units'));
     }
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $units = Unit::all();
+        
+        // Build validation rules for each unit
+        $rules = [
             'name' => 'required|string|unique:academic_years,name',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after:start_date',
-            'teaching_rate' => 'required|numeric|min:0',
-            'transport_rate' => 'required|numeric|min:0',
-            'masa_kerja_rate' => 'required|numeric|min:0',
-            'late_deduction_rate' => 'nullable|numeric|min:0',
-        ]);
+        ];
+        
+        foreach ($units as $unit) {
+            $rules["units.{$unit->id}.teaching_rate"] = 'required|numeric|min:0';
+            $rules["units.{$unit->id}.transport_rate"] = 'required|numeric|min:0';
+            $rules["units.{$unit->id}.masa_kerja_rate"] = 'required|numeric|min:0';
+            $rules["units.{$unit->id}.late_deduction_rate"] = 'nullable|numeric|min:0';
+        }
 
-        DB::transaction(function () use ($validated) {
+        $validated = $request->validate($rules);
+
+        DB::transaction(function () use ($request, $validated, $units) {
             $year = AcademicYear::create([
                 'name' => $validated['name'],
                 'start_date' => $validated['start_date'],
                 'end_date' => $validated['end_date'],
-                'is_active' => false, // Default inactive
+                'is_active' => false,
             ]);
 
-            // Create default settings for this year
-            PayrollSetting::create([
-                'academic_year_id' => $year->id,
-                'teaching_rate_per_hour' => $validated['teaching_rate'],
-                'transport_rate_per_visit' => $validated['transport_rate'],
-                'masa_kerja_rate_per_year' => $validated['masa_kerja_rate'],
-                'late_deduction_rate' => $validated['late_deduction_rate'] ?? 0,
-            ]);
+            // Create settings for each unit
+            foreach ($units as $unit) {
+                $unitData = $request->input("units.{$unit->id}");
+                PayrollSetting::create([
+                    'academic_year_id' => $year->id,
+                    'unit_id' => $unit->id,
+                    'teaching_rate_per_hour' => $unitData['teaching_rate'],
+                    'transport_rate_per_visit' => $unitData['transport_rate'],
+                    'masa_kerja_rate_per_year' => $unitData['masa_kerja_rate'],
+                    'late_deduction_rate' => $unitData['late_deduction_rate'] ?? 0,
+                ]);
+            }
         });
 
-        return redirect()->route('academic-years.index')->with('success', 'Academic Year created successfully.');
+        return redirect()->route('academic-years.index')->with('success', 'Tahun Ajaran berhasil dibuat.');
     }
 
     public function show(AcademicYear $academicYear)
@@ -60,51 +74,71 @@ class AcademicYearController extends Controller
 
     public function edit(AcademicYear $academicYear)
     {
+        $units = Unit::all();
         $academicYear->load('payrollSettings');
-        return view('academic-years.edit', compact('academicYear'));
+        
+        // Create a map of unit_id => settings for easy access in view
+        $settingsMap = $academicYear->payrollSettings->keyBy('unit_id');
+        
+        return view('academic-years.edit', compact('academicYear', 'units', 'settingsMap'));
     }
 
     public function update(Request $request, AcademicYear $academicYear)
     {
-        $validated = $request->validate([
+        $units = Unit::all();
+        
+        // Build validation rules
+        $rules = [
             'name' => 'required|string|unique:academic_years,name,' . $academicYear->id,
             'start_date' => 'required|date',
             'end_date' => 'required|date|after:start_date',
-            'teaching_rate' => 'required|numeric|min:0',
-            'transport_rate' => 'required|numeric|min:0',
-            'masa_kerja_rate' => 'required|numeric|min:0',
-            'late_deduction_rate' => 'nullable|numeric|min:0',
-        ]);
+        ];
+        
+        foreach ($units as $unit) {
+            $rules["units.{$unit->id}.teaching_rate"] = 'required|numeric|min:0';
+            $rules["units.{$unit->id}.transport_rate"] = 'required|numeric|min:0';
+            $rules["units.{$unit->id}.masa_kerja_rate"] = 'required|numeric|min:0';
+            $rules["units.{$unit->id}.late_deduction_rate"] = 'nullable|numeric|min:0';
+        }
 
-        DB::transaction(function () use ($request, $academicYear, $validated) {
+        $validated = $request->validate($rules);
+
+        DB::transaction(function () use ($request, $academicYear, $validated, $units) {
             $academicYear->update([
                 'name' => $validated['name'],
                 'start_date' => $validated['start_date'],
                 'end_date' => $validated['end_date'],
             ]);
 
-            $academicYear->payrollSettings()->updateOrCreate(
-                ['academic_year_id' => $academicYear->id],
-                [
-                    'teaching_rate_per_hour' => $validated['teaching_rate'],
-                    'transport_rate_per_visit' => $validated['transport_rate'],
-                    'masa_kerja_rate_per_year' => $validated['masa_kerja_rate'],
-                    'late_deduction_rate' => $validated['late_deduction_rate'] ?? 0,
-                ]
-            );
+            // Update or create settings for each unit
+            foreach ($units as $unit) {
+                $unitData = $request->input("units.{$unit->id}");
+                PayrollSetting::updateOrCreate(
+                    [
+                        'academic_year_id' => $academicYear->id,
+                        'unit_id' => $unit->id,
+                    ],
+                    [
+                        'teaching_rate_per_hour' => $unitData['teaching_rate'],
+                        'transport_rate_per_visit' => $unitData['transport_rate'],
+                        'masa_kerja_rate_per_year' => $unitData['masa_kerja_rate'],
+                        'late_deduction_rate' => $unitData['late_deduction_rate'] ?? 0,
+                    ]
+                );
+            }
         });
 
-        return redirect()->route('academic-years.index')->with('success', 'Academic Year updated successfully.');
+        return redirect()->route('academic-years.index')->with('success', 'Tahun Ajaran berhasil diperbarui.');
     }
 
     public function destroy(AcademicYear $academicYear)
     {
         if ($academicYear->payrolls()->count() > 0) {
-            return back()->with('error', 'Cannot delete Academic Year with existing payroll records.');
+            return back()->with('error', 'Tidak dapat menghapus Tahun Ajaran yang memiliki data penggajian.');
         }
 
         $academicYear->delete();
-        return redirect()->route('academic-years.index')->with('success', 'Academic Year deleted successfully.');
+        return redirect()->route('academic-years.index')->with('success', 'Tahun Ajaran berhasil dihapus.');
     }
 
     public function activate(AcademicYear $academicYear)
@@ -117,6 +151,6 @@ class AcademicYearController extends Controller
             $academicYear->update(['is_active' => true]);
         });
 
-        return redirect()->route('academic-years.index')->with('success', 'Academic Year activated.');
+        return redirect()->route('academic-years.index')->with('success', 'Tahun Ajaran berhasil diaktifkan.');
     }
 }
