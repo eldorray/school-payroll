@@ -128,7 +128,7 @@
         <div class="slip-box">
             <div class="header">
                 <h3>HONOR TENAGA PENDIDIK & KEPENDIDIKAN</h3>
-                <h3>SMP GARUDA</h3>
+                <h3>{{ strtoupper($unit->name ?? '') }}</h3>
                 <h4>TAHUN PELAJARAN {{ $activeYear->name }}</h4>
             </div>
 

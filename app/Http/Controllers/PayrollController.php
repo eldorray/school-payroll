@@ -7,6 +7,7 @@ use App\Models\Payroll;
 use App\Models\PayrollBatch;
 use App\Models\Teacher;
 use App\Models\PayrollSetting;
+use App\Models\Unit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -343,8 +344,9 @@ class PayrollController extends Controller
         
         $payrolls = $query->get();
         $batch = $batchId ? PayrollBatch::find($batchId) : null;
-            
-        return view('payrolls.print_all', compact('payrolls', 'month', 'year', 'activeYear', 'batch'));
+        $unit = Unit::find($unitId);
+
+        return view('payrolls.print_all', compact('payrolls', 'month', 'year', 'activeYear', 'batch', 'unit'));
     }
 
     /**

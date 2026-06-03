@@ -208,7 +208,9 @@ class TahfidzPayrollController extends Controller
             ->orderBy('id')
             ->get();
 
-        return view('tahfidz-payrolls.print_all', compact('payrolls', 'month', 'year'));
+        $unit = Unit::find($unitId);
+
+        return view('tahfidz-payrolls.print_all', compact('payrolls', 'month', 'year', 'unit'));
     }
 
     public function report(Request $request)
