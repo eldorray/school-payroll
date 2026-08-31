@@ -71,6 +71,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('tahfidz-payrolls/create', [TahfidzPayrollController::class, 'create'])->name('tahfidz-payrolls.create');
     Route::post('tahfidz-payrolls', [TahfidzPayrollController::class, 'store'])->name('tahfidz-payrolls.store');
     Route::get('tahfidz-payrolls/{payroll}', [TahfidzPayrollController::class, 'show'])->name('tahfidz-payrolls.show');
+    Route::get('tahfidz-payrolls/batch/{batch}/edit', [TahfidzPayrollController::class, 'editBatch'])->name('tahfidz-payrolls.batch.edit');
+    Route::patch('tahfidz-payrolls/batch/{batch}', [TahfidzPayrollController::class, 'updateBatch'])->name('tahfidz-payrolls.batch.update');
     Route::delete('tahfidz-payrolls/batch/{batch}', [TahfidzPayrollController::class, 'destroyBatch'])->name('tahfidz-payrolls.batch.destroy');
 
     // Backup & Restore

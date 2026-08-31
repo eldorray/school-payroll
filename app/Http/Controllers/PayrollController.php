@@ -6,7 +6,6 @@ use App\Models\AcademicYear;
 use App\Models\Payroll;
 use App\Models\PayrollBatch;
 use App\Models\Teacher;
-use App\Models\PayrollSetting;
 use App\Models\Unit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -37,7 +36,7 @@ class PayrollController extends Controller
     public function create()
     {
         $activeYear = AcademicYear::where('is_active', true)->first();
-        if (!$activeYear) {
+        if (! $activeYear) {
             return redirect()->route('academic-years.index')->with('error', 'Please activate an Academic Year first.');
         }
 
@@ -48,7 +47,7 @@ class PayrollController extends Controller
             ->where('is_tahfidz', false)
             ->orderBy('name')
             ->get();
-        
+
         $currentMonth = date('n');
         $currentYear = date('Y');
 
@@ -65,13 +64,13 @@ class PayrollController extends Controller
         ]);
 
         $activeYear = AcademicYear::where('is_active', true)->first();
-        if (!$activeYear) {
+        if (! $activeYear) {
             return back()->with('error', 'No active academic year.');
         }
 
         $unitId = session('unit_id');
         $settings = $activeYear->getSettingsForUnit($unitId);
-        if (!$settings) {
+        if (! $settings) {
             return back()->with('error', 'Payroll settings not found for this year.');
         }
 
@@ -89,7 +88,7 @@ class PayrollController extends Controller
 
             foreach ($validated['attendance'] as $teacherId => $data) {
                 $days = $data['days'] ?? 0;
-                
+
                 // Fetch annual teaching hours
                 $teacher = Teacher::find($teacherId);
                 $annualSetting = $teacher->annualSettings->where('academic_year_id', $activeYear->id)->first();
@@ -99,16 +98,14 @@ class PayrollController extends Controller
                 // Deductions from input
                 $deductionsInput = $data['deductions'] ?? [];
                 $bpjs = $annualBpjs;
-                $lateCount = $deductionsInput['late_count'] ?? 0;
-                $lateRate = $settings->late_deduction_rate ?? 0;
-                $lateDed = $lateCount * $lateRate;
+                $lateDed = $deductionsInput['late_deduction'] ?? 0;
                 $incentiveDed = $deductionsInput['incentive_deduction'] ?? 0;
                 $otherDed = $deductionsInput['other_deduction'] ?? 0;
 
                 // 1. Calculate Salary Types
                 $teachingSalary = $hours * $settings->teaching_rate_per_hour;
                 $transportSalary = $days * $settings->transport_rate_per_visit;
-                
+
                 // 2. Tenure Calculation
                 $tenureYears = 0;
                 $tenureSalary = 0;
@@ -131,7 +128,6 @@ class PayrollController extends Controller
                     'teaching_rate' => $settings->teaching_rate_per_hour,
                     'transport_rate' => $settings->transport_rate_per_visit,
                     'masa_kerja_rate' => $settings->masa_kerja_rate_per_year,
-                    'late_deduction_rate' => $lateRate,
                     'tenure_years' => $tenureYears,
                     'allowances' => $allowances->pluck('amount', 'allowance_name')->toArray(),
                     'breakdown' => [
@@ -141,12 +137,11 @@ class PayrollController extends Controller
                         'allowances' => $allowanceTotal,
                         'deductions' => [
                             'bpjs' => $bpjs,
-                            'late_count' => $lateCount,
                             'late' => $lateDed,
                             'incentive' => $incentiveDed,
-                            'other' => $otherDed
-                        ]
-                    ]
+                            'other' => $otherDed,
+                        ],
+                    ],
                 ];
 
                 // Create new payroll record (always create, never update)
@@ -171,7 +166,7 @@ class PayrollController extends Controller
 
         return redirect()->route('payrolls.index', [
             'month' => $validated['month'],
-            'year' => $validated['year']
+            'year' => $validated['year'],
         ])->with('success', 'Batch penggajian berhasil dibuat.');
     }
 
@@ -186,6 +181,7 @@ class PayrollController extends Controller
     public function showBatch(PayrollBatch $batch)
     {
         $batch->load(['payrolls.teacher', 'academicYear']);
+
         return view('payrolls.batch', compact('batch'));
     }
 
@@ -198,7 +194,7 @@ class PayrollController extends Controller
         $activeYear = $batch->academicYear;
         $unitId = session('unit_id');
         $settings = $activeYear->getSettingsForUnit($unitId);
-        
+
         return view('payrolls.edit-batch', compact('batch', 'activeYear', 'settings'));
     }
 
@@ -210,6 +206,8 @@ class PayrollController extends Controller
         $validated = $request->validate([
             'batch_name' => 'nullable|string|max:255',
             'attendance' => 'required|array',
+            'remove' => 'nullable|array',
+            'remove.*' => 'integer',
         ]);
 
         $activeYear = $batch->academicYear;
@@ -220,10 +218,19 @@ class PayrollController extends Controller
             // Update batch name
             $batch->update(['name' => $validated['batch_name'] ?? null]);
 
+            // Buang guru yang tidak seharusnya digaji di batch ini
+            if (! empty($validated['remove'])) {
+                Payroll::where('payroll_batch_id', $batch->id)
+                    ->whereIn('id', $validated['remove'])
+                    ->delete();
+            }
+
             // Update each payroll
             foreach ($validated['attendance'] as $payrollId => $data) {
                 $payroll = Payroll::find($payrollId);
-                if (!$payroll || $payroll->payroll_batch_id !== $batch->id) continue;
+                if (! $payroll || $payroll->payroll_batch_id !== $batch->id) {
+                    continue;
+                }
 
                 $days = $data['days'] ?? 0;
                 $teacher = $payroll->teacher;
@@ -233,15 +240,13 @@ class PayrollController extends Controller
 
                 $deductionsInput = $data['deductions'] ?? [];
                 $bpjs = $annualBpjs;
-                $lateCount = $deductionsInput['late_count'] ?? 0;
-                $lateRate = $settings->late_deduction_rate ?? 0;
-                $lateDed = $lateCount * $lateRate;
+                $lateDed = $deductionsInput['late_deduction'] ?? 0;
                 $incentiveDed = $deductionsInput['incentive_deduction'] ?? 0;
                 $otherDed = $deductionsInput['other_deduction'] ?? 0;
 
                 $teachingSalary = $hours * $settings->teaching_rate_per_hour;
                 $transportSalary = $days * $settings->transport_rate_per_visit;
-                
+
                 $tenureYears = 0;
                 $tenureSalary = 0;
                 if ($teacher && $teacher->joined_at) {
@@ -260,7 +265,6 @@ class PayrollController extends Controller
                     'teaching_rate' => $settings->teaching_rate_per_hour,
                     'transport_rate' => $settings->transport_rate_per_visit,
                     'masa_kerja_rate' => $settings->masa_kerja_rate_per_year,
-                    'late_deduction_rate' => $lateRate,
                     'tenure_years' => $tenureYears,
                     'allowances' => $allowances->pluck('amount', 'allowance_name')->toArray(),
                     'breakdown' => [
@@ -270,12 +274,11 @@ class PayrollController extends Controller
                         'allowances' => $allowanceTotal,
                         'deductions' => [
                             'bpjs' => $bpjs,
-                            'late_count' => $lateCount,
                             'late' => $lateDed,
                             'incentive' => $incentiveDed,
-                            'other' => $otherDed
-                        ]
-                    ]
+                            'other' => $otherDed,
+                        ],
+                    ],
                 ];
 
                 $payroll->update([
@@ -292,7 +295,7 @@ class PayrollController extends Controller
 
         return redirect()->route('payrolls.index', [
             'month' => $batch->month,
-            'year' => $batch->year
+            'year' => $batch->year,
         ])->with('success', 'Batch penggajian berhasil diupdate.');
     }
 
@@ -303,22 +306,22 @@ class PayrollController extends Controller
         $batchId = $request->get('batch');
         $activeYear = AcademicYear::where('is_active', true)->first();
         $unitId = session('unit_id');
-        
+
         $query = Payroll::with('teacher')
             ->where('unit_id', $unitId)
-            ->when($activeYear, function($q) use ($activeYear) {
+            ->when($activeYear, function ($q) use ($activeYear) {
                 return $q->where('academic_year_id', $activeYear->id);
             });
-        
+
         if ($batchId) {
             $query->where('payroll_batch_id', $batchId);
         } else {
             $query->where('month', $month)->where('year', $year);
         }
-        
+
         $payrolls = $query->get();
         $batch = $batchId ? PayrollBatch::find($batchId) : null;
-            
+
         return view('payrolls.report', compact('payrolls', 'month', 'year', 'activeYear', 'batch'));
     }
 
@@ -329,19 +332,19 @@ class PayrollController extends Controller
         $batchId = $request->get('batch');
         $activeYear = AcademicYear::where('is_active', true)->first();
         $unitId = session('unit_id');
-        
+
         $query = Payroll::with('teacher', 'academicYear')
             ->where('unit_id', $unitId)
-            ->when($activeYear, function($q) use ($activeYear) {
+            ->when($activeYear, function ($q) use ($activeYear) {
                 return $q->where('academic_year_id', $activeYear->id);
             });
-        
+
         if ($batchId) {
             $query->where('payroll_batch_id', $batchId);
         } else {
             $query->where('month', $month)->where('year', $year);
         }
-        
+
         $payrolls = $query->get();
         $batch = $batchId ? PayrollBatch::find($batchId) : null;
         $unit = Unit::find($unitId);
@@ -357,12 +360,12 @@ class PayrollController extends Controller
         $month = $batch->month;
         $year = $batch->year;
         $batchName = $batch->display_name;
-        
+
         $batch->delete(); // Cascades will delete related payrolls
-        
+
         return redirect()->route('payrolls.index', [
             'month' => $month,
-            'year' => $year
+            'year' => $year,
         ])->with('success', "Batch \"{$batchName}\" berhasil dihapus.");
     }
 
@@ -374,7 +377,7 @@ class PayrollController extends Controller
         ]);
 
         $activeYear = AcademicYear::where('is_active', true)->first();
-        if (!$activeYear) {
+        if (! $activeYear) {
             return back()->with('error', 'No active academic year.');
         }
 
@@ -386,10 +389,10 @@ class PayrollController extends Controller
             ->delete();
 
         $monthName = date('F', mktime(0, 0, 0, $validated['month'], 10));
-        
+
         return redirect()->route('payrolls.index', [
             'month' => $validated['month'],
-            'year' => $validated['year']
+            'year' => $validated['year'],
         ])->with('success', "Semua batch gaji untuk {$monthName} {$validated['year']} berhasil dihapus.");
     }
 }

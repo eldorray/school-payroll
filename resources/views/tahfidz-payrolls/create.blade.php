@@ -79,7 +79,7 @@
                             <tr>
                                 <th class="text-center text-xs">Insentif</th>
                                 <th class="text-center text-xs">BPJS</th>
-                                <th class="text-center text-xs">Terlambat</th>
+                                <th class="text-center text-xs">Terlambat (Rp)</th>
                                 <th class="text-center text-xs">Lainnya</th>
                             </tr>
                         </thead>
@@ -119,9 +119,9 @@
                                     </td>
                                     <td class="text-center">
                                         <input type="number"
-                                            name="attendance[{{ $teacher->id }}][deductions][late_count]"
-                                            class="input w-16 text-center text-[hsl(var(--destructive))]" min="0"
-                                            placeholder="0" title="Jumlah keterlambatan">
+                                            name="attendance[{{ $teacher->id }}][deductions][late_deduction]"
+                                            class="input w-20 text-right text-[hsl(var(--destructive))]" min="0"
+                                            placeholder="0" title="Nominal potongan keterlambatan (Rp)">
                                     </td>
                                     <td class="text-center">
                                         <input type="number"

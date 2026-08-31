@@ -33,15 +33,13 @@
                 <div class="mb-6 p-4 border border-[hsl(var(--border))] rounded-lg bg-[hsl(var(--muted)/0.3)]">
                     <h4 class="text-md font-medium text-[hsl(var(--foreground))] mb-4">{{ $unit->name }}</h4>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         <x-ui.input type="number" name="units[{{ $unit->id }}][teaching_rate]"
                             label="Tarif Mengajar / Jam" :value="$settings->teaching_rate_per_hour ?? 0" :error="$errors->first('units.' . $unit->id . '.teaching_rate')" required />
                         <x-ui.input type="number" name="units[{{ $unit->id }}][transport_rate]"
                             label="Tarif Transport / Hari" :value="$settings->transport_rate_per_visit ?? 0" :error="$errors->first('units.' . $unit->id . '.transport_rate')" required />
                         <x-ui.input type="number" name="units[{{ $unit->id }}][masa_kerja_rate]"
                             label="Tarif Masa Kerja / Tahun" :value="$settings->masa_kerja_rate_per_year ?? 0" :error="$errors->first('units.' . $unit->id . '.masa_kerja_rate')" required />
-                        <x-ui.input type="number" name="units[{{ $unit->id }}][late_deduction_rate]"
-                            label="Tarif Potongan Terlambat" :value="$settings->late_deduction_rate ?? 0" :error="$errors->first('units.' . $unit->id . '.late_deduction_rate')" />
                     </div>
                 </div>
             @endforeach

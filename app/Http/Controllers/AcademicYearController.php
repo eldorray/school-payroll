@@ -13,31 +13,32 @@ class AcademicYearController extends Controller
     public function index()
     {
         $years = AcademicYear::orderBy('start_date', 'desc')->get();
+
         return view('academic-years.index', compact('years'));
     }
 
     public function create()
     {
         $units = Unit::all();
+
         return view('academic-years.create', compact('units'));
     }
 
     public function store(Request $request)
     {
         $units = Unit::all();
-        
+
         // Build validation rules for each unit
         $rules = [
             'name' => 'required|string|unique:academic_years,name',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after:start_date',
         ];
-        
+
         foreach ($units as $unit) {
             $rules["units.{$unit->id}.teaching_rate"] = 'required|numeric|min:0';
             $rules["units.{$unit->id}.transport_rate"] = 'required|numeric|min:0';
             $rules["units.{$unit->id}.masa_kerja_rate"] = 'required|numeric|min:0';
-            $rules["units.{$unit->id}.late_deduction_rate"] = 'nullable|numeric|min:0';
         }
 
         $validated = $request->validate($rules);
@@ -59,7 +60,6 @@ class AcademicYearController extends Controller
                     'teaching_rate_per_hour' => $unitData['teaching_rate'],
                     'transport_rate_per_visit' => $unitData['transport_rate'],
                     'masa_kerja_rate_per_year' => $unitData['masa_kerja_rate'],
-                    'late_deduction_rate' => $unitData['late_deduction_rate'] ?? 0,
                 ]);
             }
         });
@@ -76,29 +76,28 @@ class AcademicYearController extends Controller
     {
         $units = Unit::all();
         $academicYear->load('payrollSettings');
-        
+
         // Create a map of unit_id => settings for easy access in view
         $settingsMap = $academicYear->payrollSettings->keyBy('unit_id');
-        
+
         return view('academic-years.edit', compact('academicYear', 'units', 'settingsMap'));
     }
 
     public function update(Request $request, AcademicYear $academicYear)
     {
         $units = Unit::all();
-        
+
         // Build validation rules
         $rules = [
-            'name' => 'required|string|unique:academic_years,name,' . $academicYear->id,
+            'name' => 'required|string|unique:academic_years,name,'.$academicYear->id,
             'start_date' => 'required|date',
             'end_date' => 'required|date|after:start_date',
         ];
-        
+
         foreach ($units as $unit) {
             $rules["units.{$unit->id}.teaching_rate"] = 'required|numeric|min:0';
             $rules["units.{$unit->id}.transport_rate"] = 'required|numeric|min:0';
             $rules["units.{$unit->id}.masa_kerja_rate"] = 'required|numeric|min:0';
-            $rules["units.{$unit->id}.late_deduction_rate"] = 'nullable|numeric|min:0';
         }
 
         $validated = $request->validate($rules);
@@ -122,7 +121,6 @@ class AcademicYearController extends Controller
                         'teaching_rate_per_hour' => $unitData['teaching_rate'],
                         'transport_rate_per_visit' => $unitData['transport_rate'],
                         'masa_kerja_rate_per_year' => $unitData['masa_kerja_rate'],
-                        'late_deduction_rate' => $unitData['late_deduction_rate'] ?? 0,
                     ]
                 );
             }
@@ -138,6 +136,7 @@ class AcademicYearController extends Controller
         }
 
         $academicYear->delete();
+
         return redirect()->route('academic-years.index')->with('success', 'Tahun Ajaran berhasil dihapus.');
     }
 
@@ -146,7 +145,7 @@ class AcademicYearController extends Controller
         DB::transaction(function () use ($academicYear) {
             // Deactivate all others
             AcademicYear::where('id', '!=', $academicYear->id)->update(['is_active' => false]);
-            
+
             // Activate target
             $academicYear->update(['is_active' => true]);
         });

@@ -1,15 +1,15 @@
 @extends('layouts.app')
 
-@section('title', 'Edit Batch Gaji')
+@section('title', 'Edit Batch Gaji Tahfidz')
 
 @section('content')
     <div class="mb-6">
         <div class="flex items-center gap-2 text-sm text-[hsl(var(--muted-foreground))] mb-2">
-            <a href="{{ route('payrolls.index', ['month' => $batch->month, 'year' => $batch->year]) }}" class="hover:text-[hsl(var(--foreground))]">Penggajian</a>
+            <a href="{{ route('tahfidz-payrolls.index', ['month' => $batch->month, 'year' => $batch->year]) }}" class="hover:text-[hsl(var(--foreground))]">Gaji Tahfidz</a>
             <span>/</span>
             <span>Edit Batch</span>
         </div>
-        <h1 class="text-2xl font-bold text-[hsl(var(--foreground))]">Edit Batch Penggajian</h1>
+        <h1 class="text-2xl font-bold text-[hsl(var(--foreground))]">Edit Batch Gaji Tahfidz</h1>
         <p class="text-sm text-[hsl(var(--muted-foreground))] mt-1">{{ $batch->period }} - {{ $batch->display_name }}</p>
     </div>
 
@@ -22,7 +22,7 @@
             </p>
         </div>
 
-        <form action="{{ route('payrolls.batch.update', $batch) }}" method="POST"
+        <form action="{{ route('tahfidz-payrolls.batch.update', $batch) }}" method="POST"
             onsubmit="const n = this.querySelectorAll('input[name=\'remove[]\']:checked').length; return !n || confirm(`Hapus ${n} guru dari batch ini? Data gaji mereka akan hilang permanen.`);">
             @csrf
             @method('PATCH')
@@ -60,7 +60,7 @@
                         <tr>
                             <td>
                                 <div class="font-medium text-[hsl(var(--foreground))]">{{ $teacher->name }}</div>
-                                <div class="text-xs text-[hsl(var(--muted-foreground))]">{{ $teacher->position ?? 'Guru' }}</div>
+                                <div class="text-xs text-[hsl(var(--muted-foreground))]">{{ $teacher->position ?? 'Guru Tahfidz' }}</div>
                                 <div class="text-xs text-[hsl(var(--muted-foreground))] mt-1">
                                     Jam: {{ $hours }} | BPJS: {{ number_format($annualBpjs, 0, ',', '.') }}
                                 </div>
@@ -93,7 +93,7 @@
             </div>
 
             <div class="flex items-center justify-between pt-4 border-t border-[hsl(var(--border))]">
-                <a href="{{ route('payrolls.index', ['month' => $batch->month, 'year' => $batch->year]) }}">
+                <a href="{{ route('tahfidz-payrolls.index', ['month' => $batch->month, 'year' => $batch->year]) }}">
                     <x-ui.button type="button" variant="outline">
                         Batal
                     </x-ui.button>
