@@ -115,7 +115,7 @@
                                 Edit Batch
                             </x-ui.button>
                         </a>
-                        <form action="{{ route('tahfidz-payrolls.batch.destroy', $batch) }}" method="POST" class="inline-block" onsubmit="return confirm('Hapus batch ini beserta semua data gaji di dalamnya?');">
+                        <form action="{{ route('tahfidz-payrolls.batch.destroy', $batch) }}" method="POST" class="inline-block" data-delete-confirmation="Hapus batch ini beserta semua data gaji di dalamnya? Tindakan ini tidak dapat dibatalkan.">
                             @csrf
                             @method('DELETE')
                             <x-ui.button type="submit" variant="destructive" size="sm">

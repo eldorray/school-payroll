@@ -115,7 +115,7 @@
                                 Cetak Slip
                             </x-ui.button>
                         </a>
-                        <form action="{{ route('payrolls.batch.destroy', $batch) }}" method="POST" class="inline-block" onsubmit="return confirm('Yakin ingin menghapus batch ini?');">
+                        <form action="{{ route('payrolls.batch.destroy', $batch) }}" method="POST" class="inline-block" data-delete-confirmation="Yakin ingin menghapus batch ini? Tindakan ini tidak dapat dibatalkan.">
                             @csrf
                             @method('DELETE')
                             <x-ui.button type="submit" variant="destructive" size="sm">

@@ -25,6 +25,7 @@ $sizeClasses = match($size) {
 
 <button 
     type="{{ $type }}"
+    @if($attributes->has('title') && !$attributes->has('aria-label')) aria-label="{{ $attributes->get('title') }}" @endif
     {{ $disabled ? 'disabled' : '' }}
     {{ $attributes->merge(['class' => "$baseClasses $variantClasses $sizeClasses"]) }}
 >

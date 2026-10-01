@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
     <title>Bulk Salary Slips</title>
     <style>
@@ -79,10 +79,12 @@
             .no-print { display: none; }
         }
     </style>
+    @include('layouts.document-styles')
 </head>
 <body>
     <div class="no-print" style="margin: 20px; text-align: center;">
-        <button onclick="window.print()" style="padding: 10px 20px; cursor: pointer; font-size: 14px;">Print All Slips</button>
+        <a href="{{ route('tahfidz-payrolls.index') }}">← Kembali ke daftar</a>
+        <button onclick="window.print()" style="padding: 10px 20px; cursor: pointer; font-size: 14px;">Cetak semua slip</button>
     </div>
 
     @php $slipCount = 0; @endphp

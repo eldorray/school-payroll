@@ -18,23 +18,23 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans antialiased">
-        <div class="min-h-screen gradient-mesh flex flex-col justify-center items-center p-6">
+        <div class="min-h-screen bg-[hsl(var(--background))] flex flex-col justify-center items-center p-6">
             <!-- Logo -->
-            <div class="mb-6 animate-fade-up">
+            <div class="mb-6">
                 <img src="{{ asset('logo.png') }}" alt="Logo" class="w-20 h-20 object-contain">
             </div>
             
             <!-- Title -->
-            <h1 class="text-3xl font-bold text-[hsl(var(--foreground))] mb-2 animate-fade-up delay-100">School Payroll</h1>
-            <p class="text-sm text-[hsl(var(--muted-foreground))] mb-8 animate-fade-up delay-200">Management System</p>
+            <h1 class="text-3xl font-bold text-[hsl(var(--foreground))] mb-2">School Payroll</h1>
+            <p class="text-sm text-[hsl(var(--muted-foreground))] mb-8">Administrasi penggajian sekolah</p>
 
             <!-- Card -->
-            <div class="card glass w-full sm:max-w-md px-8 py-10 animate-scale-in delay-300">
+            <div class="card w-full sm:max-w-md px-8 py-10">
                 {{ $slot }}
             </div>
             
             <!-- Footer -->
-            <p class="text-xs text-[hsl(var(--muted-foreground))] mt-8 animate-fade-up delay-400">
+            <p class="text-xs text-[hsl(var(--muted-foreground))] mt-8">
                 &copy; {{ date('Y') }} School Payroll. Design by elfahmie.
             </p>
         </div>

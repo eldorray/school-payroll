@@ -97,7 +97,7 @@
                                     <a href="{{ route('extracurricular-payrolls.show', $payroll) }}" target="_blank">
                                         <x-ui.button variant="outline" size="sm">Slip</x-ui.button>
                                     </a>
-                                    <form action="{{ route('extracurricular-payrolls.destroy', $payroll) }}" method="POST" class="inline-block" onsubmit="return confirm('Hapus data ini?');">
+                                    <form action="{{ route('extracurricular-payrolls.destroy', $payroll) }}" method="POST" class="inline-block" data-delete-confirmation="Hapus data ini? Tindakan ini tidak dapat dibatalkan.">
                                         @csrf
                                         @method('DELETE')
                                         <x-ui.button type="submit" variant="destructive" size="sm">Hapus</x-ui.button>

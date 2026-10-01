@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 
 <head>
     <title>DAFTAR PENERIMA HONOR GURU TAHFIDZ</title>
@@ -68,11 +68,13 @@
             }
         }
     </style>
+    @include('layouts.document-styles')
 </head>
 
 <body>
     <div class="no-print">
-        <button onclick="window.print()" style="padding: 5px 10px; cursor: pointer;">Print Report / Save as PDF</button>
+        <a href="{{ route('tahfidz-payrolls.index') }}">← Kembali ke daftar</a>
+        <button onclick="window.print()" style="padding: 5px 10px; cursor: pointer;">Cetak laporan / Simpan PDF</button>
     </div>
 
     @php

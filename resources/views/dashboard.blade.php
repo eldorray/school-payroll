@@ -1,105 +1,91 @@
 @extends('layouts.app')
-
-@section('title', 'Dashboard')
-
+@section('title', 'Ringkasan')
 @section('content')
-    <div class="mb-8">
-        <h1 class="text-2xl md:text-3xl font-bold text-[hsl(var(--foreground))] mb-1">Dashboard</h1>
-        @php $unit = \App\Models\Unit::find(session('unit_id')); @endphp
-        @if($unit)
-            <p class="text-sm text-[hsl(var(--muted-foreground))]">{{ $unit->name }}</p>
-        @endif
-    </div>
-    
-    <!-- Stats Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <!-- Active Teachers -->
-        <x-ui.card class="animate-fade-up">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-[hsl(var(--muted-foreground))]">Guru Aktif</p>
-                    <p class="text-3xl font-bold text-[hsl(var(--foreground))] mt-1">
-                        {{ \App\Models\Teacher::where('unit_id', session('unit_id'))->count() }}
-                    </p>
-                </div>
-                <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
-                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                    </svg>
-                </div>
-            </div>
-        </x-ui.card>
-
-        <!-- Active Academic Year -->
-        <x-ui.card class="animate-fade-up delay-100">
-            <div class="flex items-center justify-between">
-                <div>
-                    @php $activeYear = \App\Models\AcademicYear::where('is_active', true)->first(); @endphp
-                    <p class="text-sm text-[hsl(var(--muted-foreground))]">Tahun Ajaran Aktif</p>
-                    <p class="text-xl font-bold text-[hsl(var(--foreground))] mt-1">
-                        {{ $activeYear ? $activeYear->name : 'Belum diatur' }}
-                    </p>
-                </div>
-                <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
-                    <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                    </svg>
-                </div>
-            </div>
-        </x-ui.card>
-
-        <!-- Payrolls This Month -->
-        <x-ui.card class="animate-fade-up delay-200">
-            <div class="flex items-center justify-between">
-                <div>
-                    @php
-                        $prevMonth = now()->subMonth();
-                    @endphp
-                    <p class="text-sm text-[hsl(var(--muted-foreground))]">Payroll {{ $prevMonth->translatedFormat('F') }}</p>
-                    <p class="text-3xl font-bold text-[hsl(var(--foreground))] mt-1">
-                        {{ \App\Models\Payroll::where('unit_id', session('unit_id'))->where('month', $prevMonth->month)->where('year', $prevMonth->year)->count() }}
-                    </p>
-                </div>
-                <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
-                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                </div>
-            </div>
-        </x-ui.card>
+    <div class="flex flex-wrap justify-between items-start gap-4 mb-6">
+        <div>
+            <h1>Ringkasan</h1>
+            <p class="text-sm text-[hsl(var(--muted-foreground))] mt-1">{{ $period->locale('id')->translatedFormat('F Y') }} · Tahun ajaran {{ $activeYear?->name ?? 'belum diatur' }}</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-3">
+            <form action="{{ route('dashboard') }}" method="GET" class="flex gap-2 items-center">
+                <label for="summary-month" class="sr-only">Bulan ringkasan</label>
+                <select id="summary-month" name="month" class="input w-32">
+                    @for($month = 1; $month <= 12; $month++)
+                        <option value="{{ $month }}" @selected($month === $period->month)>{{ $period->copy()->month($month)->locale('id')->translatedFormat('F') }}</option>
+                    @endfor
+                </select>
+                <label for="summary-year" class="sr-only">Tahun ringkasan</label>
+                <input id="summary-year" name="year" type="number" min="2000" max="2100" value="{{ $period->year }}" class="input w-24">
+                <button type="submit" class="btn btn-outline">Tampilkan</button>
+            </form>
+            <a href="{{ route('payrolls.create') }}" class="btn btn-primary"><span aria-hidden="true" class="text-xl">+</span> Batch baru</a>
+        </div>
     </div>
 
-    <!-- Quick Actions -->
-    <x-ui.card class="animate-fade-up delay-300">
-        <x-slot:header>
-            <h3 class="text-lg font-semibold text-[hsl(var(--foreground))]">Aksi Cepat</h3>
-        </x-slot:header>
-        
-        <div class="flex flex-wrap gap-3">
-            <a href="{{ route('payrolls.create') }}">
-                <x-ui.button>
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                    </svg>
-                    Proses Gaji Bulanan
-                </x-ui.button>
-            </a>
-            <a href="{{ route('teachers.create') }}">
-                <x-ui.button variant="secondary">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
-                    </svg>
-                    Tambah Guru Baru
-                </x-ui.button>
-            </a>
-            <a href="{{ route('academic-years.create') }}">
-                <x-ui.button variant="outline">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                    </svg>
-                    Tambah Tahun Ajaran
-                </x-ui.button>
-            </a>
+    <div class="stat-strip mb-6">
+        <div><p class="text-[hsl(var(--muted-foreground))]">Total dibayar</p><p class="money">{{ number_format($totalPaid, 0, ',', '.') }}</p><p class="text-xs text-[hsl(var(--muted-foreground))]">Honor guru, tahfidz, dan ekskul (Rp)</p></div>
+        <div><p class="text-[hsl(var(--muted-foreground))]">Penerima</p><p class="money">{{ $recipientCount }}</p><p class="text-xs text-[hsl(var(--muted-foreground))]">{{ $payrolls->count() }} slip honor · {{ $extras->count() }} pembayaran ekskul</p></div>
+        <div><p class="text-[hsl(var(--muted-foreground))]">Rata-rata honor guru</p><p class="money">{{ number_format($payrolls->avg('total_salary') ?? 0, 0, ',', '.') }}</p><p class="text-xs text-[hsl(var(--muted-foreground))]">Per slip, setelah potongan (Rp)</p></div>
+        <div><p class="text-[hsl(var(--muted-foreground))]">Potongan</p><p class="money">{{ number_format($deductions, 0, ',', '.') }}</p><p class="text-xs text-amber-800">BPJS, insentif, terlambat, dan lainnya (Rp)</p></div>
+    </div>
+
+    <x-ui.card class="mb-6">
+        <x-slot:header><h2 class="text-lg">Penggajian {{ $period->locale('id')->translatedFormat('F Y') }}</h2></x-slot:header>
+        <div class="grid sm:grid-cols-3 gap-6">
+            @foreach([
+                ['Data guru', $teacherCount . ' guru aktif', 'teachers.index', $teacherCount > 0],
+                ['Honor guru & tahfidz', $payrolls->count() . ' slip tersimpan', 'payrolls.index', $payrolls->isNotEmpty()],
+                ['Gaji ekskul', $extras->count() . ' pembayaran tersimpan', 'extracurricular-payrolls.index', $extras->isNotEmpty()],
+            ] as [$label, $detail, $route, $ready])
+                <a href="{{ route($route, ['month' => $period->month, 'year' => $period->year]) }}" class="block group">
+                    <div class="h-1 rounded-full mb-3 {{ $ready ? 'bg-emerald-700' : 'bg-amber-400' }}"></div>
+                    <p class="font-semibold group-hover:underline">{{ $label }} <span aria-hidden="true">→</span></p>
+                    <p class="text-sm text-[hsl(var(--muted-foreground))] mt-1">{{ $detail }}</p>
+                </a>
+            @endforeach
         </div>
     </x-ui.card>
+
+    <div class="grid xl:grid-cols-[minmax(0,2fr)_minmax(300px,1fr)] gap-6">
+        <x-ui.card class="min-w-0">
+            <x-slot:header><div class="flex justify-between items-center gap-3"><h2 class="text-lg">Batch terbaru</h2><a href="{{ route('payrolls.index') }}" class="text-sm text-slate-600 underline underline-offset-4">Semua batch</a></div></x-slot:header>
+            <div class="table-wrapper">
+                <table class="table">
+                    <thead><tr><th>Batch</th><th class="text-right">Penerima</th><th class="text-right">Total (Rp)</th><th>Dibuat</th><th class="text-right">Aksi</th></tr></thead>
+                    <tbody>
+                        @forelse($batches as $batch)
+                            <tr>
+                                <td><p class="font-semibold">{{ $batch->display_name }}</p><p class="text-xs text-[hsl(var(--muted-foreground))]">{{ $batch->is_tahfidz ? 'Tahfidz' : 'Honor Guru' }} · {{ $batch->period }}</p></td>
+                                <td class="text-right">{{ $batch->payrolls_count }}</td>
+                                <td class="text-right font-semibold whitespace-nowrap">{{ number_format($batch->payrolls_sum_total_salary ?? 0, 0, ',', '.') }}</td>
+                                <td class="whitespace-nowrap text-[hsl(var(--muted-foreground))]">{{ $batch->created_at->format('d M Y') }}</td>
+                                <td class="text-right"><a href="{{ route($batch->is_tahfidz ? 'tahfidz-payrolls.batch.edit' : 'payrolls.batch.edit', $batch) }}" class="btn btn-outline btn-sm">Edit</a></td>
+                            </tr>
+                        @empty
+                            <tr><td colspan="5" class="py-12 text-center text-[hsl(var(--muted-foreground))]">Belum ada batch penggajian. <a href="{{ route('payrolls.create') }}" class="underline text-slate-700">Buat batch pertama</a></td></tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </x-ui.card>
+        <x-ui.card>
+            <h2 class="text-lg">Komposisi {{ $period->locale('id')->translatedFormat('F') }}</h2>
+            <p class="text-sm text-[hsl(var(--muted-foreground))] mt-1">Bruto {{ number_format($composition->sum(), 0, ',', '.') }}, sebelum potongan</p>
+            @php $colors = ['#0e1a2b', '#3d587b', '#91a7c4', '#f5aa35']; @endphp
+            <div class="flex h-4 rounded-md overflow-hidden my-5 bg-gray-100" aria-hidden="true">
+                @foreach($composition as $amount)
+                    <div style="width: {{ $composition->sum() > 0 ? $amount / $composition->sum() * 100 : 0 }}%; background: {{ $colors[$loop->index] }}"></div>
+                @endforeach
+            </div>
+            <dl>
+                @foreach($composition as $label => $amount)
+                    <div class="flex items-center gap-3 py-4 border-b">
+                        <span class="w-3 h-3 rounded-sm shrink-0" style="background: {{ $colors[$loop->index] }}" aria-hidden="true"></span>
+                        <dt class="flex-1">{{ $label }}</dt><dd class="money font-semibold">{{ number_format($amount, 0, ',', '.') }}</dd>
+                    </div>
+                @endforeach
+            </dl>
+            <a href="{{ route('academic-years.index') }}" class="flex items-center justify-between gap-3 bg-gray-50 rounded-lg p-4 mt-6 text-sm"><span class="text-[hsl(var(--muted-foreground))]">Tahun ajaran aktif</span><span class="font-semibold">{{ $activeYear?->name ?? 'Atur sekarang →' }}</span></a>
+        </x-ui.card>
+    </div>
 @endsection

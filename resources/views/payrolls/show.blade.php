@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
     <title>Salary Slip</title>
     <style>
@@ -55,10 +55,12 @@
             .slip-box { margin: 0; }
         }
     </style>
+    @include('layouts.document-styles')
 </head>
 <body>
     <div class="no-print" style="margin-bottom: 20px; text-align: center;">
-        <button onclick="window.print()" style="padding: 5px 15px; cursor: pointer;">Print Slip</button>
+        <a href="{{ route('payrolls.index') }}">← Kembali ke daftar</a>
+        <button onclick="window.print()" style="padding: 5px 15px; cursor: pointer;">Cetak slip</button>
     </div>
 
     @php

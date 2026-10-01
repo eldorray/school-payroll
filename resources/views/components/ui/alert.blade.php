@@ -5,10 +5,10 @@
 
 @php
 $classes = match($type) {
-    'error' => 'bg-red-50 text-red-800 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800',
-    'warning' => 'bg-yellow-50 text-yellow-800 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800',
-    'info' => 'bg-blue-50 text-blue-800 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800',
-    default => 'bg-green-50 text-green-800 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800',
+    'error' => 'bg-red-50 text-red-800 border-red-200',
+    'warning' => 'bg-yellow-50 text-yellow-800 border-yellow-200',
+    'info' => 'bg-blue-50 text-blue-800 border-blue-200',
+    default => 'bg-green-50 text-green-800 border-green-200',
 };
 
 $icon = match($type) {
@@ -20,6 +20,7 @@ $icon = match($type) {
 @endphp
 
 <div {{ $attributes->merge(['class' => "flex items-center gap-3 p-4 rounded-lg border $classes"]) }}
+     role="status"
      x-data="{ show: true }"
      x-show="show"
      x-transition:leave="transition ease-in duration-200"
@@ -32,7 +33,7 @@ $icon = match($type) {
         {{ $slot }}
     </div>
     @if($dismissible)
-        <button type="button" @click="show = false" class="flex-shrink-0 opacity-70 hover:opacity-100 transition-opacity">
+        <button type="button" @click="show = false" aria-label="Tutup pemberitahuan" class="flex-shrink-0 opacity-70 hover:opacity-100 transition-opacity">
             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
             </svg>

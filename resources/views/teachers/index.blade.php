@@ -106,7 +106,7 @@
                                     <a href="{{ route('teachers.edit', $teacher) }}">
                                         <x-ui.button variant="outline" size="sm">Edit</x-ui.button>
                                     </a>
-                                    <form action="{{ route('teachers.destroy', $teacher) }}" method="POST" class="inline-block" onsubmit="return confirm('Hapus guru ini?');">
+                                    <form action="{{ route('teachers.destroy', $teacher) }}" method="POST" class="inline-block" data-delete-confirmation="Hapus guru ini? Tindakan ini tidak dapat dibatalkan.">
                                         @csrf
                                         @method('DELETE')
                                         <x-ui.button type="submit" variant="destructive" size="sm">Hapus</x-ui.button>

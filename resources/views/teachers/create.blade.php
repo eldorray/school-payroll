@@ -106,7 +106,8 @@
             allowanceIndex++;
         }
         
-        function removeAllowance(btn) {
+        async function removeAllowance(btn) {
+            if (!await window.confirmDeletion('Hapus baris tunjangan ini? Perubahan diterapkan setelah Anda menyimpan form.')) return;
             const row = btn.closest('.allowance-row');
             if (row) row.remove();
         }

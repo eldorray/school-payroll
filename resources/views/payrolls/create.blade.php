@@ -8,7 +8,7 @@
         <p class="text-sm text-[hsl(var(--muted-foreground))] mt-1">Hitung dan simpan gaji bulanan guru</p>
     </div>
 
-    <x-ui.card>
+    <x-ui.card class="editor-card">
         <div class="mb-6 p-4 rounded-lg bg-[hsl(var(--secondary))]">
             <h3 class="font-semibold text-[hsl(var(--foreground))]">Tahun Ajaran Aktif: <span
                     class="text-[hsl(var(--primary))]">{{ $activeYear->name }}</span></h3>
@@ -19,8 +19,10 @@
             </p>
         </div>
 
-        <form action="{{ route('payrolls.store') }}" method="POST">
+        <form x-data="{ dirty: false }" @input="dirty = true" action="{{ route('payrolls.store') }}" method="POST">
             @csrf
+            <div x-cloak x-show="dirty" role="status" class="mb-4"><span class="badge badge-warning">Perubahan belum disimpan</span></div>
+
 
             <div class="flex flex-wrap gap-4 mb-6">
                 <div class="space-y-2">
@@ -60,6 +62,7 @@
                 </div>
             </div>
 
+            <p class="text-sm text-slate-600 bg-slate-100 rounded-lg px-4 py-3 mb-4">Gunakan Tab untuk berpindah sel. Jam mengajar, tunjangan, dan BPJS mengikuti data tahun ajaran guru.</p>
             <div class="table-wrapper mb-6">
                 <table class="table">
                     <thead>
@@ -101,13 +104,13 @@
                                 </td>
                                 <td class="text-center">
                                     <input type="number" name="attendance[{{ $teacher->id }}][days]"
-                                        class="input w-16 text-center" min="0" placeholder="0">
+                                        class="input w-16 text-center" min="0" placeholder="0" aria-label="{{ $teacher->name }} — Kehadiran (hari)">
                                 </td>
                                 <td class="text-center">
                                     <input type="number"
                                         name="attendance[{{ $teacher->id }}][deductions][incentive_deduction]"
                                         class="input w-20 text-right text-[hsl(var(--destructive))]" min="0"
-                                        placeholder="0">
+                                        placeholder="0" aria-label="{{ $teacher->name }} — Potongan insentif (Rp)">
                                 </td>
                                 <td class="text-center bg-[hsl(var(--secondary))]">
                                     <span class="text-xs text-[hsl(var(--muted-foreground))]">(Auto)</span>
@@ -116,13 +119,13 @@
                                     <input type="number"
                                         name="attendance[{{ $teacher->id }}][deductions][late_deduction]"
                                         class="input w-20 text-right text-[hsl(var(--destructive))]" min="0"
-                                        placeholder="0" title="Nominal potongan keterlambatan (Rp)">
+                                        placeholder="0" title="Nominal potongan keterlambatan (Rp)" aria-label="{{ $teacher->name }} — Potongan terlambat (Rp)">
                                 </td>
                                 <td class="text-center">
                                     <input type="number"
                                         name="attendance[{{ $teacher->id }}][deductions][other_deduction]"
                                         class="input w-20 text-right text-[hsl(var(--destructive))]" min="0"
-                                        placeholder="0">
+                                        placeholder="0" aria-label="{{ $teacher->name }} — Potongan lainnya (Rp)">
                                 </td>
                                 <td class="text-right text-[hsl(var(--muted-foreground))]">
                                     {{ number_format($allowanceTotal, 0, ',', '.') }}
@@ -133,7 +136,8 @@
                 </table>
             </div>
 
-            <div class="flex items-center justify-end pt-4 border-t border-[hsl(var(--border))]">
+            <div class="editor-actions">
+                <p class="text-sm text-slate-500 mr-auto">Periksa kehadiran dan potongan sebelum menyimpan.</p>
                 <x-ui.button type="submit">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

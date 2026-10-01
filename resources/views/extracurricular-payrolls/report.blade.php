@@ -78,8 +78,10 @@
             @page { margin: 10mm; }
         }
     </style>
+    @include('layouts.document-styles')
 </head>
 <body onload="window.print()">
+    <div class="no-print"><a href="{{ route('extracurricular-payrolls.index') }}">← Kembali ke daftar</a><button onclick="window.print()">Cetak laporan / Simpan PDF</button></div>
     <div class="header">
         <h1>HONOR EKSTRAKURIKULER</h1>
         <h2>{{ $unit->name ?? 'SEKOLAH' }}</h2>

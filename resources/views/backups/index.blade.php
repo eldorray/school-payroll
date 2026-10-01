@@ -114,7 +114,7 @@
                                         </form>
                                         <form action="{{ route('backups.delete', $backup['filename']) }}" method="POST"
                                             class="inline-block"
-                                            onsubmit="return confirm('Hapus backup {{ $backup['filename'] }}?');">
+                                            data-delete-confirmation="Hapus backup {{ $backup['filename'] }}? Tindakan ini tidak dapat dibatalkan.">
                                             @csrf
                                             @method('DELETE')
                                             <x-ui.button type="submit" variant="destructive" size="sm" title="Hapus">
@@ -146,7 +146,7 @@
     </x-ui.card>
 
     <!-- Warning Note -->
-    <x-ui.alert variant="warning" class="mt-6">
+    <x-ui.alert type="warning" class="mt-6">
         <strong>Peringatan:</strong> Proses restore akan mengganti SEMUA data yang ada saat ini dengan data dari backup.
         Pastikan Anda membuat backup baru sebelum melakukan restore.
     </x-ui.alert>

@@ -110,7 +110,8 @@
                 addEntry() {
                     this.entries.push({ rate: 0, volume: 0 });
                 },
-                removeEntry(index) {
+                async removeEntry(index) {
+                    if (!await window.confirmDeletion('Hapus baris pembayaran ekskul ini dari form?')) return;
                     this.entries.splice(index, 1);
                 },
                 updateRate(event, index) {

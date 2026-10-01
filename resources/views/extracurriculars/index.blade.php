@@ -42,7 +42,7 @@
                                     <a href="{{ route('extracurriculars.edit', $ekskul) }}">
                                         <x-ui.button variant="outline" size="sm">Edit</x-ui.button>
                                     </a>
-                                    <form action="{{ route('extracurriculars.destroy', $ekskul) }}" method="POST" class="inline-block" onsubmit="return confirm('Hapus ekskul ini?');">
+                                    <form action="{{ route('extracurriculars.destroy', $ekskul) }}" method="POST" class="inline-block" data-delete-confirmation="Hapus ekskul ini? Tindakan ini tidak dapat dibatalkan.">
                                         @csrf
                                         @method('DELETE')
                                         <x-ui.button type="submit" variant="destructive" size="sm">Hapus</x-ui.button>

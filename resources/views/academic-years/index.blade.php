@@ -64,7 +64,7 @@
                                         </form>
                                     @endif
 
-                                    <form action="{{ route('academic-years.destroy', $year) }}" method="POST" class="inline-block" onsubmit="return confirm('Yakin ingin menghapus?');">
+                                    <form action="{{ route('academic-years.destroy', $year) }}" method="POST" class="inline-block" data-delete-confirmation="Yakin ingin menghapus? Tindakan ini tidak dapat dibatalkan.">
                                         @csrf
                                         @method('DELETE')
                                         <x-ui.button type="submit" variant="destructive" size="sm">Hapus</x-ui.button>
