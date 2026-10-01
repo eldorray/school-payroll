@@ -49,6 +49,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // Unit Settings
+    Route::post('/switch-unit', [\App\Http\Controllers\UnitController::class, 'switchUnit'])->name('units.switch');
     Route::get('/unit-settings', [\App\Http\Controllers\UnitController::class, 'edit'])->name('units.edit');
     Route::patch('/unit-settings', [\App\Http\Controllers\UnitController::class, 'update'])->name('units.update');
 

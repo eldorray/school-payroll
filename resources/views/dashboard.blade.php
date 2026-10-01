@@ -7,6 +7,18 @@
             <p class="text-sm text-[hsl(var(--muted-foreground))] mt-1">{{ $period->locale('id')->translatedFormat('F Y') }} · Tahun ajaran {{ $activeYear?->name ?? 'belum diatur' }}</p>
         </div>
         <div class="flex flex-wrap items-center gap-3">
+            <form action="{{ route('units.switch') }}" method="POST">
+                @csrf
+                <input type="hidden" name="month" value="{{ $period->month }}">
+                <input type="hidden" name="year" value="{{ $period->year }}">
+                <label for="summary-unit" class="sr-only">Pindah unit sekolah</label>
+                <select id="summary-unit" name="unit_id" class="input w-full sm:w-52" onchange="this.form.requestSubmit()" required>
+                    @if(!$unit)<option value="" disabled selected>Pilih unit sekolah</option>@endif
+                    @foreach($units as $availableUnit)
+                        <option value="{{ $availableUnit->id }}" @selected($availableUnit->id === $unit?->id)>{{ $availableUnit->name }}</option>
+                    @endforeach
+                </select>
+            </form>
             <form action="{{ route('dashboard') }}" method="GET" class="flex gap-2 items-center">
                 <label for="summary-month" class="sr-only">Bulan ringkasan</label>
                 <select id="summary-month" name="month" class="input w-32">

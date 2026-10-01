@@ -21,6 +21,7 @@ class DashboardController extends Controller
         );
         $unitId = session('unit_id');
         $unit = Unit::find($unitId);
+        $units = Unit::orderBy('name')->get(['id', 'name']);
         $activeYear = AcademicYear::where('is_active', true)->first();
         $teacherCount = Teacher::where('unit_id', $unitId)->where('is_active', true)->count();
         $payrolls = Payroll::where('unit_id', $unitId)->where('month', $period->month)->where('year', $period->year)->get();
@@ -36,6 +37,6 @@ class DashboardController extends Controller
         ]);
         $batches = PayrollBatch::where('unit_id', $unitId)->withCount('payrolls')->withSum('payrolls', 'total_salary')->latest()->limit(8)->get();
 
-        return view('dashboard', compact('unit', 'activeYear', 'teacherCount', 'period', 'payrolls', 'extras', 'totalPaid', 'recipientCount', 'deductions', 'composition', 'batches'));
+        return view('dashboard', compact('units', 'unit', 'activeYear', 'teacherCount', 'period', 'payrolls', 'extras', 'totalPaid', 'recipientCount', 'deductions', 'composition', 'batches'));
     }
 }
